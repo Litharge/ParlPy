@@ -17,8 +17,7 @@ class BillsOverview():
     def __init__(self):
         # todo:
         #   member var ?:bills_df_last_updated
-        #   member var dataframe:bills_overview_data
-        #   one for each session and one containing intersection?
+        #   member var/s - one dataframe for each session and one containing intersection?
         self.bills_overview_data = pd.DataFrame([], columns=["bill_title"])
 
         self.listed_bills_counter = 0 # debugging var
@@ -38,7 +37,8 @@ class BillsOverview():
             "Title (Z-A)": "3"
         }
 
-        pass
+        # a reasonable duration in seconds to delay between requesting pages
+        self.__bills_overview_fetch_delay = 0.1
 
     # get the total number of pages of bills for the selected session
     # there are many other possible methods of doing this - uncertain which is most robust
@@ -68,8 +68,6 @@ class BillsOverview():
         return max_page
 
     def __fetch_all_titles_on_page(self, session, sort_order, page):
-        # todo: put scheme, netloc, query mappings in member vars (or utils? - bc these macros will likely need to be
-        #   used externally by api users...)
         page_query_string = urllib.parse.urlencode(
             OrderedDict(
                 Session=session,
@@ -88,9 +86,9 @@ class BillsOverview():
 
         titles = data_bs.find_all(class_="primary-info")
 
-        # prints titles data todo: put in dataframe
+        # puts title data into dataframe
         bill_tuple_list = []
-        print(titles)
+        #print(titles)
         for t in titles:
             bill_tuple_list.append((t))
 
@@ -102,8 +100,8 @@ class BillsOverview():
 
         self.bills_overview_data = pd.concat([self.bills_overview_data, page_df])
 
-    # method to fetch overview information about all bills in current session
-    # currently prints all bill titles in current session
+    # method to update self.bills_overview_data dataframe with overview information about bills from current session
+    # currently gets titles only
     def update_all_bills_in_session(self):
         session = self.__bills_overview_session["2019 - 21"]
 
@@ -112,7 +110,7 @@ class BillsOverview():
         sort_order = self.__bills_overview_sort_order["Updated (newest first)"]
 
         for i in range(1, max_page+1):
-            time.sleep(0.1)
+            time.sleep(self.__bills_overview_fetch_delay)
             self.__fetch_all_titles_on_page(session, sort_order, i)
 
         print(self.bills_overview_data)
