@@ -35,7 +35,6 @@ class BillFetcher():
             )
         )
 
-
         url = urllib.parse.urlunparse((
             self.__bills_overview_scheme, self.__bills_overview_netloc, "", "", page_query_string, ""
         ))
