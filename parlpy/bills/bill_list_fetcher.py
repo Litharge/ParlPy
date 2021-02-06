@@ -21,8 +21,17 @@ class BillFetcher():
         self.__bills_overview_scheme = "https"
         self.__bills_overview_netloc = "bills.parliament.uk"
 
-        self.__bills_overview_session = {"2019 - 21": "35", "2019 - 19": "34", "2017 - 19": "33"}
-        #self.__bills_overview_sort_by = {"Title (A-Z)": "0"}
+        self.__bills_overview_session = {
+            "2019 - 21": "35",
+            "2019 - 19": "34",
+            "2017 - 19": "33"
+        }
+        self.__bills_overview_sort_order = {
+            "Title (A-Z)": "0",
+            "Updated (newest first)": "1",
+            "Updated (oldest first)": "2",
+            "Title (Z-A)": "3"
+        }
 
         pass
 
@@ -53,12 +62,13 @@ class BillFetcher():
 
         return max_page
 
-    def fetch_all_titles_on_page(self, session, page):
+    def fetch_all_titles_on_page(self, session, sort_order, page):
         # todo: put scheme, netloc, query mappings in member vars (or utils? - bc these macros will likely need to be
         #   used externally by api users...)
         page_query_string = urllib.parse.urlencode(
             OrderedDict(
                 Session=session,
+                BillSortOrder=sort_order,
                 page=str(page),
             )
         )
@@ -82,8 +92,11 @@ class BillFetcher():
     # currently fetches all bill titles in current session
     def fetch_all_bills(self):
         session = self.__bills_overview_session["2019 - 19"]
+
         max_page = self.determine_number_pages_for_session(session)
+
+        sort_order = self.__bills_overview_sort_order["Updated (newest first)"]
 
         for i in range(1, max_page+1):
             time.sleep(1)
-            self.fetch_all_titles_on_page(session, i)
+            self.fetch_all_titles_on_page(session, sort_order, i)
