@@ -93,7 +93,7 @@ class BillsOverview():
         print(titles)
         for t in titles:
             bill_tuple_list.append((t))
-            print(t.text)
+
             self.listed_bills_counter += 1
         page_df = pd.DataFrame(bill_tuple_list, columns=["bill_title"])
 
@@ -105,14 +105,14 @@ class BillsOverview():
     # method to fetch overview information about all bills in current session
     # currently prints all bill titles in current session
     def update_all_bills_in_session(self):
-        session = self.__bills_overview_session["2019 - 19"]
+        session = self.__bills_overview_session["2019 - 21"]
 
         max_page = self.__determine_number_pages_for_session(session)
 
         sort_order = self.__bills_overview_sort_order["Updated (newest first)"]
 
         for i in range(1, max_page+1):
-            time.sleep(1)
+            time.sleep(0.1)
             self.__fetch_all_titles_on_page(session, sort_order, i)
 
         print(self.bills_overview_data)
