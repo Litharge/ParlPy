@@ -4,6 +4,8 @@ from collections import OrderedDict
 import re
 import time
 
+import pandas as pd
+
 from bs4 import BeautifulSoup
 
 # class that will have a method to fetch all bill titles, with its associated data:
@@ -15,9 +17,11 @@ class BillsOverview():
     def __init__(self):
         # todo:
         #   member var ?:bills_df_last_updated
-        #   member var dataframe:bill_data
+        #   member var dataframe:bills_overview_data
         #   one for each session and one containing intersection?
-        self.listed_bills_counter = 0
+        self.bills_overview_data = pd.DataFrame([], columns=["bill_title"])
+
+        self.listed_bills_counter = 0 # debugging var
 
         self.__bills_overview_scheme = "https"
         self.__bills_overview_netloc = "bills.parliament.uk"
@@ -85,15 +89,23 @@ class BillsOverview():
         titles = data_bs.find_all(class_="primary-info")
 
         # prints titles data todo: put in dataframe
+        bill_tuple_list = []
         print(titles)
         for t in titles:
+            bill_tuple_list.append((t))
             print(t.text)
             self.listed_bills_counter += 1
+        page_df = pd.DataFrame(bill_tuple_list, columns=["bill_title"])
 
-    # method to fetch overview information about all bills
-    # currently fetches all bill titles in current session
+        new_indices = [x for x in range(len(self.bills_overview_data.index), len(self.bills_overview_data.index) + len(page_df))]
+        page_df.index = new_indices
+
+        self.bills_overview_data = pd.concat([self.bills_overview_data, page_df])
+
+    # method to fetch overview information about all bills in current session
+    # currently prints all bill titles in current session
     def update_all_bills_in_session(self):
-        session = self.__bills_overview_session["2019 - 21"]
+        session = self.__bills_overview_session["2019 - 19"]
 
         max_page = self.__determine_number_pages_for_session(session)
 
@@ -103,4 +115,4 @@ class BillsOverview():
             time.sleep(1)
             self.__fetch_all_titles_on_page(session, sort_order, i)
 
-            print(self.listed_bills_counter)
+        print(self.bills_overview_data)
