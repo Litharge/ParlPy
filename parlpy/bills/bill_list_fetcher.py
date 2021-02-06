@@ -1,13 +1,20 @@
 from urllib.request import urlopen
+import urllib.parse
+from collections import OrderedDict
 import re
 import time
 
 from bs4 import BeautifulSoup
 
+# class that will have a method to fetch all bill titles, with its associated data:
+# * associated link to further details
+# * last updated date
+# and will update the list by fetching each https://bills.parliament.uk page in series until the oldest updated date
+# is older than the bills_df_last_updated, amending the bills_df as it does so
 class BillFetcher():
     def __init__(self):
         # todo:
-        #  member var time_last_updated
+        #  member var bills_df_last_updated
         #  member var dataframe:bill_data
         self.bills_url = "https://bills.parliament.uk"
         pass
@@ -40,4 +47,5 @@ class BillFetcher():
         for i in range(1, max_page+1):
             time.sleep(1)
             self.fetch_all_titles_on_page(i)
+
 
