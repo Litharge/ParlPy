@@ -11,12 +11,13 @@ from bs4 import BeautifulSoup
 # * last updated date
 # and will update the list by fetching each https://bills.parliament.uk page in series until the oldest updated date
 # is older than the bills_df_last_updated, amending the bills_df as it does so
-class BillFetcher():
+class BillsOverview():
     def __init__(self):
         # todo:
         #   member var ?:bills_df_last_updated
         #   member var dataframe:bill_data
         #   one for each session and one containing intersection?
+        self.listed_bills_counter = 0
 
         self.__bills_overview_scheme = "https"
         self.__bills_overview_netloc = "bills.parliament.uk"
@@ -37,7 +38,7 @@ class BillFetcher():
 
     # get the total number of pages of bills for the selected session
     # there are many other possible methods of doing this - uncertain which is most robust
-    def determine_number_pages_for_session(self, session):
+    def __determine_number_pages_for_session(self, session):
         page_query_string = urllib.parse.urlencode(
             OrderedDict(
                 Session=session
@@ -62,7 +63,7 @@ class BillFetcher():
 
         return max_page
 
-    def fetch_all_titles_on_page(self, session, sort_order, page):
+    def __fetch_all_titles_on_page(self, session, sort_order, page):
         # todo: put scheme, netloc, query mappings in member vars (or utils? - bc these macros will likely need to be
         #   used externally by api users...)
         page_query_string = urllib.parse.urlencode(
@@ -87,16 +88,19 @@ class BillFetcher():
         print(titles)
         for t in titles:
             print(t.text)
+            self.listed_bills_counter += 1
 
     # method to fetch overview information about all bills
     # currently fetches all bill titles in current session
-    def fetch_all_bills(self):
-        session = self.__bills_overview_session["2019 - 19"]
+    def update_all_bills_in_session(self):
+        session = self.__bills_overview_session["2019 - 21"]
 
-        max_page = self.determine_number_pages_for_session(session)
+        max_page = self.__determine_number_pages_for_session(session)
 
         sort_order = self.__bills_overview_sort_order["Updated (newest first)"]
 
         for i in range(1, max_page+1):
             time.sleep(1)
-            self.fetch_all_titles_on_page(session, sort_order, i)
+            self.__fetch_all_titles_on_page(session, sort_order, i)
+
+            print(self.listed_bills_counter)
