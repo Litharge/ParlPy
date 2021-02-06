@@ -67,7 +67,36 @@ class BillsOverview():
 
         return max_page
 
-    def __fetch_all_titles_on_page(self, session, sort_order, page):
+    def __get_title_list_from_card_tags(self, card_tags):
+        titles = []
+        for o in card_tags:
+            title = o.find(class_="primary-info")
+            # print(title)
+            titles.append(title.text)
+
+        print(titles)
+
+        return titles
+
+    def __add_page_data_to_bills_overview_data(self, titles):
+        # puts title data into dataframe
+        bill_tuple_list = []
+        print(titles)
+        for t in titles:
+            bill_tuple_list.append((t))
+
+            self.listed_bills_counter += 1
+
+        page_df = pd.DataFrame(bill_tuple_list, columns=["bill_title"])
+
+        new_indices = [x for x in
+                       range(len(self.bills_overview_data.index), len(self.bills_overview_data.index) + len(page_df))]
+        page_df.index = new_indices
+
+        self.bills_overview_data = pd.concat([self.bills_overview_data, page_df])
+
+    # adds bill overview information to self.bills_overview_data
+    def __fetch_all_overview_info_on_page(self, session, sort_order, page):
         page_query_string = urllib.parse.urlencode(
             OrderedDict(
                 Session=session,
@@ -75,7 +104,6 @@ class BillsOverview():
                 page=str(page),
             )
         )
-
         url = urllib.parse.urlunparse((
             self.__bills_overview_scheme, self.__bills_overview_netloc, "", "", page_query_string, ""
         ))
@@ -84,21 +112,10 @@ class BillsOverview():
 
         data_bs = BeautifulSoup(html_data.read(), 'html.parser')
 
-        titles = data_bs.find_all(class_="primary-info")
+        card_tags = data_bs.find_all(class_="card-clickable")
 
-        # puts title data into dataframe
-        bill_tuple_list = []
-        #print(titles)
-        for t in titles:
-            bill_tuple_list.append((t))
-
-            self.listed_bills_counter += 1
-        page_df = pd.DataFrame(bill_tuple_list, columns=["bill_title"])
-
-        new_indices = [x for x in range(len(self.bills_overview_data.index), len(self.bills_overview_data.index) + len(page_df))]
-        page_df.index = new_indices
-
-        self.bills_overview_data = pd.concat([self.bills_overview_data, page_df])
+        titles = self.__get_title_list_from_card_tags(card_tags)
+        self.__add_page_data_to_bills_overview_data(titles)
 
     # method to update self.bills_overview_data dataframe with overview information about bills from current session
     # currently gets titles only
@@ -111,6 +128,6 @@ class BillsOverview():
 
         for i in range(1, max_page+1):
             time.sleep(self.__bills_overview_fetch_delay)
-            self.__fetch_all_titles_on_page(session, sort_order, i)
+            self.__fetch_all_overview_info_on_page(session, sort_order, i)
 
         print(self.bills_overview_data)
