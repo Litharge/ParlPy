@@ -14,13 +14,17 @@ from bs4 import BeautifulSoup
 class BillFetcher():
     def __init__(self):
         # todo:
-        #  member var bills_df_last_updated
+        #  member var ?:bills_df_last_updated
         #  member var dataframe:bill_data
-        self.bills_url = "https://bills.parliament.uk"
+        self.bills_netloc = "bills.parliament.uk"
         pass
 
     def fetch_all_titles_on_page(self, page):
-        html_data = urlopen(self.bills_url+"/?page="+str(page))
+        # todo: put scheme, netloc, query mappings in utils
+        page_query_string = urllib.parse.urlencode(OrderedDict(page=str(page)))
+        url = urllib.parse.urlunparse(("https", self.bills_netloc, "", "", page_query_string, ""))
+
+        html_data = urlopen(url)
 
         data_bs = BeautifulSoup(html_data.read(), 'html.parser')
 
@@ -33,7 +37,9 @@ class BillFetcher():
     # method to fetch overview information about all bills
     # currently fetches all bill titles in current session
     def fetch_all_bills(self):
-        html_data = urlopen(self.bills_url)
+        url = urllib.parse.urlunparse(("https", self.bills_netloc, "", "", "", ""))
+
+        html_data = urlopen(url)
         data_bs = BeautifulSoup(html_data.read(), 'html.parser')
         page_selection_elements = data_bs.find_all("a", href=re.compile("/\?page=*"))
 
