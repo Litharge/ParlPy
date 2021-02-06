@@ -16,13 +16,35 @@ class BillFetcher():
         # todo:
         #  member var ?:bills_df_last_updated
         #  member var dataframe:bill_data
-        self.bills_netloc = "bills.parliament.uk"
+        self.bills_overview_scheme = "https"
+        self.bills_overview_netloc = "bills.parliament.uk"
         pass
 
+    # get the total number of pages containing bills for the selected session
+    def determine_number_pages_for_session(self, session):
+        url = urllib.parse.urlunparse((
+            self.bills_overview_scheme, self.bills_overview_netloc, "", "", "", ""
+        ))
+
+        html_data = urlopen(url)
+        data_bs = BeautifulSoup(html_data.read(), 'html.parser')
+        page_selection_elements = data_bs.find_all("a", href=re.compile("/\?page=*"))
+
+        max = 1
+        for pt in page_selection_elements:
+            page = int(pt["href"].split('=')[1])
+
+            if page > max:
+                max_page = page
+
+        return max_page
+
     def fetch_all_titles_on_page(self, page):
-        # todo: put scheme, netloc, query mappings in utils
+        # todo: put scheme, netloc, query mappings in member vars
         page_query_string = urllib.parse.urlencode(OrderedDict(page=str(page)))
-        url = urllib.parse.urlunparse(("https", self.bills_netloc, "", "", page_query_string, ""))
+        url = urllib.parse.urlunparse((
+            self.bills_overview_scheme, self.bills_overview_netloc, "", "", page_query_string, ""
+        ))
 
         html_data = urlopen(url)
 
@@ -37,21 +59,8 @@ class BillFetcher():
     # method to fetch overview information about all bills
     # currently fetches all bill titles in current session
     def fetch_all_bills(self):
-        url = urllib.parse.urlunparse(("https", self.bills_netloc, "", "", "", ""))
-
-        html_data = urlopen(url)
-        data_bs = BeautifulSoup(html_data.read(), 'html.parser')
-        page_selection_elements = data_bs.find_all("a", href=re.compile("/\?page=*"))
-
-        max = 1
-        for pt in page_selection_elements:
-            page = int(pt["href"].split('=')[1])
-
-            if page > max:
-                max_page = page
+        max_page = self.determine_number_pages_for_session(1)
 
         for i in range(1, max_page+1):
             time.sleep(1)
             self.fetch_all_titles_on_page(i)
-
-
