@@ -18,7 +18,7 @@ class BillsOverview():
         # todo:
         #   member var ?:bills_df_last_updated
         #   member var/s - one dataframe for each session and one containing intersection?
-        self.bills_overview_data = pd.DataFrame([], columns=["bill_title", "last_updated"])
+        self.bills_overview_data = pd.DataFrame([], columns=["bill_title", "last_updated", "bill_detail_path"])
 
         self.listed_bills_counter = 0 # debugging var
 
@@ -94,27 +94,27 @@ class BillsOverview():
         return updated_dates
 
     def __get_bill_data_path_list_from_card_tags(self, card_tags):
-        bill_data_paths = []
+        bill_details_paths = []
         for o in card_tags:
-            bill_data_path_tag = o.find(class_="overlay-link")
-            bill_data_path = bill_data_path_tag["href"]
+            bill_detail_path_tag = o.find(class_="overlay-link")
+            bill_data_path = bill_detail_path_tag["href"]
 
-            bill_data_paths.append(bill_data_path)
+            bill_details_paths.append(bill_data_path)
 
-        print(bill_data_paths)
+        print(bill_details_paths)
 
-        return bill_data_paths
+        return bill_details_paths
 
-    def __add_page_data_to_bills_overview_data(self, titles, updated_dates):
-        # puts title data into dataframe
+    # puts the titles, their last updated dates and bill details paths into dataframe
+    def __add_page_data_to_bills_overview_data(self, titles, updated_dates, bill_details_paths):
         bill_tuple_list = []
         print(titles)
         for t in range(len(titles)):
-            bill_tuple_list.append((titles[t], updated_dates[t]))
+            bill_tuple_list.append((titles[t], updated_dates[t], bill_details_paths[t]))
 
             self.listed_bills_counter += 1
 
-        page_df = pd.DataFrame(bill_tuple_list, columns=["bill_title", "last_updated"])
+        page_df = pd.DataFrame(bill_tuple_list, columns=["bill_title", "last_updated", "bill_detail_path"])
 
         new_indices = [x for x in
                        range(len(self.bills_overview_data.index), len(self.bills_overview_data.index) + len(page_df))]
@@ -144,7 +144,7 @@ class BillsOverview():
         titles = self.__get_title_list_from_card_tags(card_tags)
         updated_dates = self.__get_updated_dates_list_from_card_tags(card_tags)
         bill_data_paths = self.__get_bill_data_path_list_from_card_tags(card_tags)
-        self.__add_page_data_to_bills_overview_data(titles, updated_dates)
+        self.__add_page_data_to_bills_overview_data(titles, updated_dates, bill_data_paths)
 
     # method to update self.bills_overview_data dataframe with overview information about bills from current session
     # currently gets titles only
