@@ -93,6 +93,18 @@ class BillsOverview():
 
         return updated_dates
 
+    def __get_bill_data_path_list_from_card_tags(self, card_tags):
+        bill_data_paths = []
+        for o in card_tags:
+            bill_data_path_tag = o.find(class_="overlay-link")
+            bill_data_path = bill_data_path_tag["href"]
+
+            bill_data_paths.append(bill_data_path)
+
+        print(bill_data_paths)
+
+        return bill_data_paths
+
     def __add_page_data_to_bills_overview_data(self, titles, updated_dates):
         # puts title data into dataframe
         bill_tuple_list = []
@@ -131,6 +143,7 @@ class BillsOverview():
 
         titles = self.__get_title_list_from_card_tags(card_tags)
         updated_dates = self.__get_updated_dates_list_from_card_tags(card_tags)
+        bill_data_paths = self.__get_bill_data_path_list_from_card_tags(card_tags)
         self.__add_page_data_to_bills_overview_data(titles, updated_dates)
 
     # method to update self.bills_overview_data dataframe with overview information about bills from current session
