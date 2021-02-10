@@ -1,4 +1,4 @@
 Copyright Robert Chambers - All Rights Reserved
-Unauthorised copying, via any medium is strictly prohibited
-Proprietary and confidential
+Proprietary
 Written by Robert Chambers <1robertchambers@gmail.com>, Feb 2021
+No license yet chosen - I will do this once the package has had more work done
