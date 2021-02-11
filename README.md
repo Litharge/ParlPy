@@ -8,6 +8,10 @@ Written as part of University of Bath Integrated Project module.
 
 # Usage
 
+## Install
+
+    pipenv install ParlPy
+
 ## Example Usage
 
 To fetch all bills in session and print them:

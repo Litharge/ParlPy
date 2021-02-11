@@ -7,6 +7,7 @@ name = "pypi"
 numpy = "*"
 beautifulsoup4 = "*"
 pandas = "*"
+parlpy = "*"
 
 [dev-packages]
 
