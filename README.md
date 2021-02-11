@@ -10,7 +10,7 @@ Written as part of University of Bath Integrated Project module.
 
 ## Install
 
-    pipenv install ParlPy
+    pipenv install ParlPy=0.0.2
 
 ## Example Usage
 
