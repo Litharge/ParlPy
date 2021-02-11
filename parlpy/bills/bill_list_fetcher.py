@@ -156,5 +156,3 @@ class BillsOverview():
         for i in range(1, max_page+1):
             time.sleep(fetch_delay)
             self.__fetch_all_overview_info_on_page(session, sort_order, i)
-
-        print(self.bills_overview_data)
