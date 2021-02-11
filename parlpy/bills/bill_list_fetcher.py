@@ -37,9 +37,6 @@ class BillsOverview():
             "Title (Z-A)": "3"
         }
 
-        # a reasonable duration in seconds to delay between requesting pages
-        self.__bills_overview_fetch_delay = 0.1
-
     # get the total number of pages of bills for the selected session
     # there are many other possible methods of doing this - uncertain which is most robust
     def __determine_number_pages_for_session(self, session):
@@ -148,7 +145,8 @@ class BillsOverview():
 
     # method to update self.bills_overview_data dataframe with overview information about bills from current session
     # currently gets titles only
-    def update_all_bills_in_session(self):
+    # fetch_delay is approx time in seconds of delay between fetching site pages
+    def update_all_bills_in_session(self, fetch_delay=0):
         session = self.__bills_overview_session["2019 - 21"]
 
         max_page = self.__determine_number_pages_for_session(session)
@@ -156,7 +154,7 @@ class BillsOverview():
         sort_order = self.__bills_overview_sort_order["Updated (newest first)"]
 
         for i in range(1, max_page+1):
-            time.sleep(self.__bills_overview_fetch_delay)
+            time.sleep(fetch_delay)
             self.__fetch_all_overview_info_on_page(session, sort_order, i)
 
         print(self.bills_overview_data)
