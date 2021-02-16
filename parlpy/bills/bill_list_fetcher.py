@@ -3,8 +3,11 @@ import urllib.parse
 from collections import OrderedDict
 import re
 import time
+import datetime
 
 import pandas as pd
+import numpy
+
 
 from bs4 import BeautifulSoup
 
@@ -15,9 +18,6 @@ from bs4 import BeautifulSoup
 # is older than the bills_df_last_updated, amending the bills_df as it does so
 class BillsOverview():
     def __init__(self):
-        # todo:
-        #   member var ?:bills_df_last_updated
-        #   member var/s - one dataframe for each session and one containing intersection?
         self.bills_overview_data = pd.DataFrame([], columns=["bill_title", "last_updated", "bill_detail_path"])
 
         self.listed_bills_counter = 0 # debugging var
@@ -82,11 +82,9 @@ class BillsOverview():
             updated_date = updated_date.splitlines()[0]
             updated_date = updated_date.rsplit(" ", 1)[0]
 
-            print("updated date: {}".format(updated_date.encode('unicode_escape')))
+            updated_date_datetime = datetime.datetime.strptime(updated_date, '%d %B %Y at %H:%M')
 
-            updated_dates.append(updated_date)
-
-        print(updated_dates)
+            updated_dates.append(updated_date_datetime)
 
         return updated_dates
 
@@ -102,15 +100,17 @@ class BillsOverview():
 
         return bill_details_paths
 
-    # puts the titles, their last updated dates and bill details paths into dataframe
+    # puts the partial dataframe containing titles, their last updated dates and bill details paths into dataframe
+    # member variable
     def __add_page_data_to_bills_overview_data(self, titles, updated_dates, bill_details_paths):
         bill_tuple_list = []
-        print(titles)
+
         for t in range(len(titles)):
             bill_tuple_list.append((titles[t], updated_dates[t], bill_details_paths[t]))
 
             self.listed_bills_counter += 1
 
+        bill_tuple_list = numpy.array(bill_tuple_list)
         page_df = pd.DataFrame(bill_tuple_list, columns=["bill_title", "last_updated", "bill_detail_path"])
 
         new_indices = [x for x in
