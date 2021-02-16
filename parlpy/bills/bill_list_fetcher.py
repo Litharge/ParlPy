@@ -17,7 +17,10 @@ from bs4 import BeautifulSoup
 # and will update the list by fetching each https://bills.parliament.uk page in series until the oldest updated date
 # is older than the bills_df_last_updated, amending the bills_df as it does so
 class BillsOverview():
-    def __init__(self):
+    def __init__(self, debug=False):
+        # variable to determine whether to print output as it is collected
+        self.debug = debug
+
         self.bills_overview_data = pd.DataFrame([], columns=["bill_title", "last_updated", "bill_detail_path"])
 
         self.listed_bills_counter = 0 # debugging var
@@ -61,6 +64,9 @@ class BillsOverview():
             if page > max_page:
                 max_page = page
 
+        if self.debug:
+            print("max page = {}".format(max_page))
+
         return max_page
 
     def __get_title_list_from_card_tags(self, card_tags):
@@ -68,6 +74,9 @@ class BillsOverview():
         for o in card_tags:
             title = o.find(class_="primary-info")
             titles.append(title.text)
+
+        if self.debug:
+            print("title list for page {}".format(titles))
 
         return titles
 
@@ -123,12 +132,12 @@ class BillsOverview():
                 page=str(page),
             )
         )
+
         url = urllib.parse.urlunparse((
             self.__bills_overview_scheme, self.__bills_overview_netloc, "", "", page_query_string, ""
         ))
 
         html_data = urlopen(url)
-
         data_bs = BeautifulSoup(html_data.read(), 'html.parser')
 
         card_tags = data_bs.find_all(class_="card-clickable")
@@ -138,11 +147,12 @@ class BillsOverview():
         bill_data_paths = self.__get_bill_data_path_list_from_card_tags(card_tags)
         self.__add_page_data_to_bills_overview_data(titles, updated_dates, bill_data_paths)
 
-    # method to update self.bills_overview_data dataframe with overview information about bills from current session
-    # currently gets titles only
+    # method to update self.bills_overview_data dataframe with overview information about bills from given session, or
+    # all sessions
+    # currently gets titles, updated dates, further information paths
     # fetch_delay is approx time in seconds of delay between fetching site pages
-    def update_all_bills_in_session(self, fetch_delay=0):
-        session = self.__bills_overview_session["2019 - 21"]
+    def update_all_bills_in_session(self, session_name="2019 - 21", fetch_delay=0):
+        session = self.__bills_overview_session[session_name]
 
         max_page = self.__determine_number_pages_for_session(session)
 
