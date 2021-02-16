@@ -49,7 +49,6 @@ class BillsOverview():
         url = urllib.parse.urlunparse((
             self.__bills_overview_scheme, self.__bills_overview_netloc, "", "", page_query_string, ""
         ))
-        print("url: {}".format(url))
 
         html_data = urlopen(url)
         data_bs = BeautifulSoup(html_data.read(), 'html.parser')
@@ -69,8 +68,6 @@ class BillsOverview():
         for o in card_tags:
             title = o.find(class_="primary-info")
             titles.append(title.text)
-
-        print(titles)
 
         return titles
 
@@ -95,8 +92,6 @@ class BillsOverview():
             bill_data_path = bill_detail_path_tag["href"]
 
             bill_details_paths.append(bill_data_path)
-
-        print(bill_details_paths)
 
         return bill_details_paths
 
