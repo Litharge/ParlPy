@@ -27,16 +27,16 @@ class TestOverview(unittest.TestCase):
 
     # test types of dataframe
     def test_dataframe_types(self):
-        #self.assertIsInstance(self.test_fetcher.bills_overview_data, pd.DataFrame)
+        self.assertIsInstance(self.test_fetcher.bills_overview_data, pd.DataFrame)
+
         print(self.test_fetcher.bills_overview_data.dtypes)
+
         # strings are stored as objects in dataframes
         self.assertTrue(self.test_fetcher.bills_overview_data.bill_title.dtype == object)
-
-        print("dtype value")
-        print(self.test_fetcher.bills_overview_data.last_updated.dtype)
-
-        self.assertTrue(self.test_fetcher.bills_overview_data.last_updated.dtype == np.dtype('datetime64[ns]'))
         self.assertTrue(self.test_fetcher.bills_overview_data.bill_detail_path.dtype == object)
+
+        # check that last_updated is stored as datetime64[ns]
+        self.assertTrue(self.test_fetcher.bills_overview_data.last_updated.dtype == np.dtype('datetime64[ns]'))
 
 if __name__ == '__main__':
     unittest.main()
