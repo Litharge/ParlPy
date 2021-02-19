@@ -24,6 +24,9 @@ class BillsOverview():
         self.bills_overview_data = pd.DataFrame([], columns=["bill_title", "last_updated", "bill_detail_path"])
         self.last_updated = None
 
+        # record number of pages
+        self.pages_updated_this_update = 0
+
         self.listed_bills_counter = 0 # debugging var
 
         self.__bills_overview_scheme = "https"
@@ -137,6 +140,10 @@ class BillsOverview():
 
         self.bills_overview_data = pd.concat([self.bills_overview_data, page_df])
 
+        print("last item on page: {}".format(page_df.iloc[-1]))
+
+        return 0
+
     # adds bill overview information to self.bills_overview_data
     def __fetch_all_overview_info_on_page(self, session, sort_order, page):
         page_query_string = urllib.parse.urlencode(
@@ -160,11 +167,14 @@ class BillsOverview():
         updated_dates = self.__get_updated_dates_list_from_card_tags(card_tags)
         bill_data_paths = self.__get_bill_data_path_list_from_card_tags(card_tags)
 
-        self.__add_page_data_to_bills_overview_data(titles, updated_dates, bill_data_paths)
+        last_item_on_page_updated = self.__add_page_data_to_bills_overview_data(titles, updated_dates, bill_data_paths)
+
+        print()
 
     # todo: make this more intelligent - only crawl pages up to ones containing bills updated since this method was
-    #   last called
-    def update_bills_overview_up_to_page(self, session_code, max_page, fetch_delay):
+    #   last called (iff smart_update==True)
+    #   note: test that self.last_updated != none AND that initial scrape was successful
+    def update_bills_overview_up_to_page(self, session_code, max_page, fetch_delay, smart_update=True):
         # get in order of updated, because update_bills_overview_up_to_page is planned to only crawl pages with
         # bills updated since the method was last called
         sort_order_code = self.__bills_overview_sort_order["Updated (newest first)"]

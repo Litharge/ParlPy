@@ -37,16 +37,27 @@ class TestOverview(unittest.TestCase):
         # check that last_updated is stored as datetime64[ns]
         self.assertTrue(self.test_fetcher.bills_overview_data.last_updated.dtype == np.dtype('datetime64[ns]'))
 
-    # test dataframe update procedure
+    # todo: check there are no duplicates in dataframe
+    def test_no_duplicates(self):
+        pass
+
+    # test dataframe update procedure:
+    # * times (first scrape should be older than second scrape)
+    # * todo: number of bills updated (first scrape should have more bills updated than second scrape)
+    # * number of pages visited during scrape (first should visit more pages than second)
     def test_update_procedure(self):
         first_update_time = self.test_fetcher.last_updated
+        first_pages_updated = self.test_fetcher.pages_updated_this_update
 
         self.test_fetcher.update_all_bills_in_session()
         second_update_time = self.test_fetcher.last_updated
+        second_pages_updated = self.test_fetcher.pages_updated_this_update
 
         delta = second_update_time - first_update_time
-
         self.assertTrue(delta.total_seconds() > 0)
+
+        self.assertTrue(first_pages_updated > second_pages_updated)
+
 
 if __name__ == '__main__':
     unittest.main()
