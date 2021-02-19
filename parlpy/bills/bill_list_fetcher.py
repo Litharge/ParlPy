@@ -8,7 +8,6 @@ import datetime
 import pandas as pd
 import numpy
 
-
 from bs4 import BeautifulSoup
 
 
@@ -23,6 +22,7 @@ class BillsOverview():
         self.debug = debug
 
         self.bills_overview_data = pd.DataFrame([], columns=["bill_title", "last_updated", "bill_detail_path"])
+        self.last_updated = None
 
         self.listed_bills_counter = 0 # debugging var
 
@@ -159,14 +159,18 @@ class BillsOverview():
         titles = self.__get_title_list_from_card_tags(card_tags)
         updated_dates = self.__get_updated_dates_list_from_card_tags(card_tags)
         bill_data_paths = self.__get_bill_data_path_list_from_card_tags(card_tags)
+
         self.__add_page_data_to_bills_overview_data(titles, updated_dates, bill_data_paths)
 
     # todo: make this more intelligent - only crawl pages up to ones containing bills updated since this method was
     #   last called
     def update_bills_overview_up_to_page(self, session_code, max_page, fetch_delay):
-        # only get in order of updated, because update_bills_overview_up_to_page is planned to only crawl pages with
+        # get in order of updated, because update_bills_overview_up_to_page is planned to only crawl pages with
         # bills updated since the method was last called
         sort_order_code = self.__bills_overview_sort_order["Updated (newest first)"]
+
+        self.last_updated = datetime.datetime.now()
+        print(self.last_updated)
 
         for i in range(1, max_page+1):
             time.sleep(fetch_delay)
@@ -181,7 +185,7 @@ class BillsOverview():
             session_name="2019-21",
             fetch_delay=0):
 
-        # get the integer strings corresponding to session string and sort order string
+        # get the integer string corresponding to session string
         session_code = self.__bills_overview_session[session_name]
 
         max_page = self.__determine_number_pages_for_session(session_code)
