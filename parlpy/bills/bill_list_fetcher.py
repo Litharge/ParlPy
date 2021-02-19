@@ -167,9 +167,8 @@ class BillsOverview():
         updated_dates = self.__get_updated_dates_list_from_card_tags(card_tags)
         bill_data_paths = self.__get_bill_data_path_list_from_card_tags(card_tags)
 
-        last_item_on_page_updated = self.__add_page_data_to_bills_overview_data(titles, updated_dates, bill_data_paths)
+        return (titles, updated_dates, bill_data_paths)
 
-        print()
 
     # todo: make this more intelligent - only crawl pages up to ones containing bills updated since this method was
     #   last called (iff smart_update==True)
@@ -184,7 +183,10 @@ class BillsOverview():
 
         for i in range(1, max_page+1):
             time.sleep(fetch_delay)
-            self.__fetch_all_overview_info_on_page(session_code, sort_order_code, i)
+
+            (titles, updated_dates, bill_data_paths) = self.__fetch_all_overview_info_on_page(session_code, sort_order_code, i)
+
+            self.__add_page_data_to_bills_overview_data(titles, updated_dates, bill_data_paths)
 
     # method to update self.bills_overview_data dataframe with overview information about bills from given session, or
     # all sessions
