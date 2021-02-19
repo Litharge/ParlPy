@@ -7,12 +7,11 @@ import parlpy.bills.bill_list_fetcher
 import unittest
 
 
-
 class TestOverview(unittest.TestCase):
     # create BillsOverview object ready for tests
     # also print result
     def setUp(self):
-        test_fetcher = parlpy.bills.bill_list_fetcher.BillsOverview()
+        test_fetcher = parlpy.bills.bill_list_fetcher.BillsOverview(debug=True)
         test_fetcher.update_all_bills_in_session()
 
         self.test_fetcher = test_fetcher
@@ -37,6 +36,7 @@ class TestOverview(unittest.TestCase):
 
         # check that last_updated is stored as datetime64[ns]
         self.assertTrue(self.test_fetcher.bills_overview_data.last_updated.dtype == np.dtype('datetime64[ns]'))
+
 
 if __name__ == '__main__':
     unittest.main()
