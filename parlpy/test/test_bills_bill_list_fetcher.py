@@ -37,6 +37,16 @@ class TestOverview(unittest.TestCase):
         # check that last_updated is stored as datetime64[ns]
         self.assertTrue(self.test_fetcher.bills_overview_data.last_updated.dtype == np.dtype('datetime64[ns]'))
 
+    # test dataframe update procedure
+    def test_update_procedure(self):
+        first_update_time = self.test_fetcher.last_updated
+
+        self.test_fetcher.update_all_bills_in_session()
+        second_update_time = self.test_fetcher.last_updated
+
+        delta = second_update_time - first_update_time
+
+        self.assertTrue(delta.total_seconds() > 0)
 
 if __name__ == '__main__':
     unittest.main()
