@@ -4,6 +4,7 @@ from collections import OrderedDict
 import re
 import time
 import datetime
+import pickle
 
 import pandas as pd
 import numpy
@@ -122,16 +123,18 @@ class BillsOverview():
         return bill_details_paths
 
     def put_bill_info_in_list_into_bills_overview_data(self, bill_tuple_list):
-        bill_tuple_arr = numpy.array(bill_tuple_list)
-        page_df = pd.DataFrame(bill_tuple_arr, columns=["bill_title", "last_updated", "bill_detail_path"])
+        if len(bill_tuple_list) > 0:
+            bill_tuple_arr = numpy.array(bill_tuple_list)
 
-        new_indices = [x for x in
-                       range(len(self.bills_overview_data.index), len(self.bills_overview_data.index) + len(page_df))]
-        page_df.index = new_indices
+            page_df = pd.DataFrame(bill_tuple_arr, columns=["bill_title", "last_updated", "bill_detail_path"])
 
-        self.bills_overview_data = pd.concat([self.bills_overview_data, page_df])
+            new_indices = [x for x in
+                           range(len(self.bills_overview_data.index), len(self.bills_overview_data.index) + len(page_df))]
+            page_df.index = new_indices
 
-        print("last item on page: {}".format(page_df.iloc[-1]))
+            self.bills_overview_data = pd.concat([self.bills_overview_data, page_df])
+
+            print("last item on page: {}".format(page_df.iloc[-1]))
 
     # puts the partial dataframe containing titles, their last updated dates and bill details paths into dataframe
     # member variable
