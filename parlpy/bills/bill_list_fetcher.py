@@ -127,6 +127,12 @@ class BillsOverview():
         bill_tuple_list = []
 
         for t in range(len(titles)):
+            print("bill title: {}".format(titles[t]))
+            print("bill updated date: {} type {}".format(updated_dates[t], type(updated_dates[t])))
+            print("last updated: {}".format(self.last_updated))
+            delta_from_last_update_call =  self.last_updated - updated_dates[t]
+            print("updated date diff: {}".format(delta_from_last_update_call))
+            #print("difference from updated time: {}".format)
             bill_tuple_list.append((titles[t], updated_dates[t], bill_details_paths[t]))
 
             self.listed_bills_counter += 1
@@ -142,7 +148,6 @@ class BillsOverview():
 
         print("last item on page: {}".format(page_df.iloc[-1]))
 
-        return 0
 
     # adds bill overview information to self.bills_overview_data
     def __fetch_all_overview_info_on_page(self, session, sort_order, page):
@@ -167,14 +172,14 @@ class BillsOverview():
         updated_dates = self.__get_updated_dates_list_from_card_tags(card_tags)
         bill_data_paths = self.__get_bill_data_path_list_from_card_tags(card_tags)
 
-        last_item_on_page_updated = self.__add_page_data_to_bills_overview_data(titles, updated_dates, bill_data_paths)
+        return (titles, updated_dates, bill_data_paths)
 
-        print()
+
 
     # todo: make this more intelligent - only crawl pages up to ones containing bills updated since this method was
     #   last called (iff smart_update==True)
     #   note: test that self.last_updated != none AND that initial scrape was successful
-    def update_bills_overview_up_to_page(self, session_code, max_page, fetch_delay, smart_update=True):
+    def __update_bills_overview_up_to_page(self, session_code, max_page, fetch_delay, smart_update=True):
         # get in order of updated, because update_bills_overview_up_to_page is planned to only crawl pages with
         # bills updated since the method was last called
         sort_order_code = self.__bills_overview_sort_order["Updated (newest first)"]
@@ -184,7 +189,9 @@ class BillsOverview():
 
         for i in range(1, max_page+1):
             time.sleep(fetch_delay)
-            self.__fetch_all_overview_info_on_page(session_code, sort_order_code, i)
+            (titles, updated_dates, bill_data_paths) = self.__fetch_all_overview_info_on_page(session_code, sort_order_code, i)
+
+            self.__add_page_data_to_bills_overview_data(titles, updated_dates, bill_data_paths)
 
     # method to update self.bills_overview_data dataframe with overview information about bills from given session, or
     # all sessions
@@ -200,4 +207,28 @@ class BillsOverview():
 
         max_page = self.__determine_number_pages_for_session(session_code)
 
-        self.update_bills_overview_up_to_page(session_code, max_page, fetch_delay)
+        self.__update_bills_overview_up_to_page(session_code, max_page, fetch_delay)
+
+    def __update_bills_overview_with_updated_bills_only(self, session_code, max_page, fetch_delay):
+        sort_order_code = self.__bills_overview_sort_order["Updated (newest first)"]
+
+        for i in range(1, max_page + 1):
+            time.sleep(fetch_delay)
+            got_all_updated_bills = self.__fetch_all_overview_info_on_page(session_code, sort_order_code, i)
+
+            # if we have all the bills which were updated since we last checked, no need to check any more pages
+            if got_all_updated_bills:
+                break
+
+        self.last_updated = datetime.datetime.now()
+        print(self.last_updated)
+
+    # this method uses a pickled variable (so that ths package can be run periodically, but not have to be persistent)
+    # puts into self.bills_overview_data, bills which have been updated since the method was last called
+    # these can then be compared to values in a database for example
+    def get_changed_bills_in_session(self, session_name="2019-21", fetch_delay=0):
+        session_code = self.__bills_overview_session[session_name]
+
+        max_page = self.__determine_number_pages_for_session(session_code)
+
+        self.__update_bills_overview_with_updated_bills_only(session_code, max_page, fetch_delay)
