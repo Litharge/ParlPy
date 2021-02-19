@@ -16,7 +16,7 @@ from bs4 import BeautifulSoup
 # * associated link to further details
 # * last updated date
 # and will update the list by fetching each https://bills.parliament.uk page in series until the oldest updated date
-# is older than the bills_df_last_updated, amending the bills_df as it does so
+# is older than the bills_df_last_updated, amending the bills_df as it does so (planned)
 class BillsOverview():
     def __init__(self, debug=False):
         # whether to print output as it is collected
@@ -161,6 +161,17 @@ class BillsOverview():
         bill_data_paths = self.__get_bill_data_path_list_from_card_tags(card_tags)
         self.__add_page_data_to_bills_overview_data(titles, updated_dates, bill_data_paths)
 
+    # todo: make this more intelligent - only crawl pages up to ones containing bills updated since this method was
+    #   last called
+    def update_bills_overview_up_to_page(self, session_code, max_page, fetch_delay):
+        # only get in order of updated, because update_bills_overview_up_to_page is planned to only crawl pages with
+        # bills updated since the method was last called
+        sort_order_code = self.__bills_overview_sort_order["Updated (newest first)"]
+
+        for i in range(1, max_page+1):
+            time.sleep(fetch_delay)
+            self.__fetch_all_overview_info_on_page(session_code, sort_order_code, i)
+
     # method to update self.bills_overview_data dataframe with overview information about bills from given session, or
     # all sessions
     # currently gets titles, updated dates, further information paths
@@ -168,15 +179,11 @@ class BillsOverview():
     def update_all_bills_in_session(
             self,
             session_name="2019-21",
-            sort_order="Updated (newest first)",
             fetch_delay=0):
 
         # get the integer strings corresponding to session string and sort order string
         session_code = self.__bills_overview_session[session_name]
-        sort_order_code = self.__bills_overview_sort_order[sort_order]
 
         max_page = self.__determine_number_pages_for_session(session_code)
 
-        for i in range(1, max_page+1):
-            time.sleep(fetch_delay)
-            self.__fetch_all_overview_info_on_page(session_code, sort_order_code, i)
+        self.update_bills_overview_up_to_page(session_code, max_page, fetch_delay)
