@@ -1,5 +1,7 @@
-import pandas as pd
 import datetime
+import time
+
+import pandas as pd
 import numpy as np
 
 from parlpy.bills.bill_list_fetcher import BillsOverview
@@ -12,18 +14,26 @@ class TestOverview(unittest.TestCase):
     # also print result
     def setUp(self):
         test_fetcher = BillsOverview(debug=False)
-        test_fetcher.update_all_bills_in_session()
+        #test_fetcher.update_all_bills_in_session()
 
         self.test_fetcher = test_fetcher
 
         pd.set_option("display.max_columns", len(self.test_fetcher.bills_overview_data.columns))
 
+        #print(self.test_fetcher.bills_overview_data)
+
+    def test_update_only_needed(self):
+        self.test_fetcher.get_changed_bills_in_session()
+        print("dataframe:")
         print(self.test_fetcher.bills_overview_data)
 
-        print(self.test_fetcher.bills_overview_data[
-                  self.test_fetcher.bills_overview_data.bill_title == "Fire Safety Bill"
-                  ])
+        time.sleep(5)
 
+        self.test_fetcher.get_changed_bills_in_session()
+        print("dataframe:")
+        print(self.test_fetcher.bills_overview_data)
+
+    """
     # test types of dataframe
     def test_dataframe_types(self):
         self.assertIsInstance(self.test_fetcher.bills_overview_data, pd.DataFrame)
@@ -36,24 +46,28 @@ class TestOverview(unittest.TestCase):
 
         # check that last_updated is stored as datetime64[ns]
         self.assertTrue(self.test_fetcher.bills_overview_data.last_updated.dtype == np.dtype('datetime64[ns]'))
+    """
 
 
+    """
     # test dataframe update procedure:
     # * times (first scrape should be older than second scrape)
     # * todo: number of bills updated (first scrape should have more bills updated than second scrape)
-    # * number of pages visited during scrape (first should visit more pages than second)
+    # * todo: number of pages visited during scrape (first should visit more pages than second)
     def test_update_procedure(self):
         first_update_time = self.test_fetcher.last_updated
-        first_pages_updated = self.test_fetcher.pages_updated_this_update
 
         self.test_fetcher.update_all_bills_in_session()
         second_update_time = self.test_fetcher.last_updated
-        second_pages_updated = self.test_fetcher.pages_updated_this_update
 
         delta = second_update_time - first_update_time
         self.assertTrue(delta.total_seconds() > 0)
 
-        self.assertTrue(first_pages_updated > second_pages_updated)
+        print(self.test_fetcher.bills_overview_data)
+    """
+
+    # todo: create hand made bills html data to check that update is working
+
 
 
 if __name__ == '__main__':

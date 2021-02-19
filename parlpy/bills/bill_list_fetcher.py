@@ -121,24 +121,9 @@ class BillsOverview():
 
         return bill_details_paths
 
-    # puts the partial dataframe containing titles, their last updated dates and bill details paths into dataframe
-    # member variable
-    def __add_page_data_to_bills_overview_data(self, titles, updated_dates, bill_details_paths):
-        bill_tuple_list = []
-
-        for t in range(len(titles)):
-            print("bill title: {}".format(titles[t]))
-            print("bill updated date: {} type {}".format(updated_dates[t], type(updated_dates[t])))
-            print("last updated: {}".format(self.last_updated))
-            delta_from_last_update_call =  self.last_updated - updated_dates[t]
-            print("updated date diff: {}".format(delta_from_last_update_call))
-            #print("difference from updated time: {}".format)
-            bill_tuple_list.append((titles[t], updated_dates[t], bill_details_paths[t]))
-
-            self.listed_bills_counter += 1
-
-        bill_tuple_list = numpy.array(bill_tuple_list)
-        page_df = pd.DataFrame(bill_tuple_list, columns=["bill_title", "last_updated", "bill_detail_path"])
+    def put_bill_info_in_list_into_bills_overview_data(self, bill_tuple_list):
+        bill_tuple_arr = numpy.array(bill_tuple_list)
+        page_df = pd.DataFrame(bill_tuple_arr, columns=["bill_title", "last_updated", "bill_detail_path"])
 
         new_indices = [x for x in
                        range(len(self.bills_overview_data.index), len(self.bills_overview_data.index) + len(page_df))]
@@ -147,6 +132,41 @@ class BillsOverview():
         self.bills_overview_data = pd.concat([self.bills_overview_data, page_df])
 
         print("last item on page: {}".format(page_df.iloc[-1]))
+
+    # puts the partial dataframe containing titles, their last updated dates and bill details paths into dataframe
+    # member variable
+    def __add_page_data_to_bills_overview_data(self, titles, updated_dates, bill_details_paths, check_last_updated):
+        bill_tuple_list = []
+
+        for i in range(len(titles)):
+            if self.last_updated != None and check_last_updated:
+                print("bill title: {}".format(titles[i]))
+                print("bill updated date: {} type {}".format(updated_dates[i], type(updated_dates[i])))
+                print("last updated: {}".format(self.last_updated))
+                delta_from_last_update_call = self.last_updated - updated_dates[i]
+                #print("difference from updated time: {}".format)
+                if delta_from_last_update_call.total_seconds() > 0:
+                    print("found newest bill NOT updated recently (first to be discarded)")
+                    print("delta in seconds {}".format(delta_from_last_update_call.total_seconds()))
+                    print(titles[i])
+                    print(updated_dates[i])
+
+                    self.put_bill_info_in_list_into_bills_overview_data(bill_tuple_list)
+
+                    got_all_updated_bills = True
+                    return got_all_updated_bills
+
+                else:
+                    print("found bill updated recently {}".format(titles[i]))
+
+            bill_tuple_list.append((titles[i], updated_dates[i], bill_details_paths[i]))
+
+            self.listed_bills_counter += 1
+
+        self.put_bill_info_in_list_into_bills_overview_data(bill_tuple_list)
+
+        # last item was updated since we last called, so proceed to next page
+        return False
 
 
     # adds bill overview information to self.bills_overview_data
@@ -174,8 +194,6 @@ class BillsOverview():
 
         return (titles, updated_dates, bill_data_paths)
 
-
-
     # todo: make this more intelligent - only crawl pages up to ones containing bills updated since this method was
     #   last called (iff smart_update==True)
     #   note: test that self.last_updated != none AND that initial scrape was successful
@@ -184,14 +202,15 @@ class BillsOverview():
         # bills updated since the method was last called
         sort_order_code = self.__bills_overview_sort_order["Updated (newest first)"]
 
-        self.last_updated = datetime.datetime.now()
-        print(self.last_updated)
-
         for i in range(1, max_page+1):
             time.sleep(fetch_delay)
+
             (titles, updated_dates, bill_data_paths) = self.__fetch_all_overview_info_on_page(session_code, sort_order_code, i)
 
-            self.__add_page_data_to_bills_overview_data(titles, updated_dates, bill_data_paths)
+            self.__add_page_data_to_bills_overview_data(titles, updated_dates, bill_data_paths, False)
+
+        self.last_updated = datetime.datetime.now()
+        print(self.last_updated)
 
     # method to update self.bills_overview_data dataframe with overview information about bills from given session, or
     # all sessions
@@ -200,7 +219,11 @@ class BillsOverview():
     def update_all_bills_in_session(
             self,
             session_name="2019-21",
-            fetch_delay=0):
+            fetch_delay=0,
+            update_last_updated=False
+    ):
+        # reset df
+        self.bills_overview_data = pd.DataFrame([], columns=["bill_title", "last_updated", "bill_detail_path"])
 
         # get the integer string corresponding to session string
         session_code = self.__bills_overview_session[session_name]
@@ -209,13 +232,24 @@ class BillsOverview():
 
         self.__update_bills_overview_up_to_page(session_code, max_page, fetch_delay)
 
-    def __update_bills_overview_with_updated_bills_only(self, session_code, max_page, fetch_delay):
+    def __update_bills_overview_with_updated_bills_only_up_to_page(self, session_code, max_page, fetch_delay):
         sort_order_code = self.__bills_overview_sort_order["Updated (newest first)"]
 
         for i in range(1, max_page + 1):
             time.sleep(fetch_delay)
-            got_all_updated_bills = self.__fetch_all_overview_info_on_page(session_code, sort_order_code, i)
+            (titles, updated_dates, bill_data_paths) = self.__fetch_all_overview_info_on_page(session_code,
+                                                                                              sort_order_code, i)
 
+            print("titles: {}".format(titles))
+            print("updated_dates: {}".format(updated_dates))
+            print("bill_data_paths: {}".format(bill_data_paths))
+
+            if self.last_updated != None:
+                titles.insert(0, "a bill that looks like it has been updated")
+                updated_dates.insert(0, datetime.datetime.now())
+                bill_data_paths.insert(0, "/test/path")
+
+            got_all_updated_bills = self.__add_page_data_to_bills_overview_data(titles, updated_dates, bill_data_paths, True)
             # if we have all the bills which were updated since we last checked, no need to check any more pages
             if got_all_updated_bills:
                 break
@@ -227,8 +261,11 @@ class BillsOverview():
     # puts into self.bills_overview_data, bills which have been updated since the method was last called
     # these can then be compared to values in a database for example
     def get_changed_bills_in_session(self, session_name="2019-21", fetch_delay=0):
+        # reset df ready for new data
+        self.bills_overview_data = pd.DataFrame([], columns=["bill_title", "last_updated", "bill_detail_path"])
+
         session_code = self.__bills_overview_session[session_name]
 
         max_page = self.__determine_number_pages_for_session(session_code)
 
-        self.__update_bills_overview_with_updated_bills_only(session_code, max_page, fetch_delay)
+        self.__update_bills_overview_with_updated_bills_only_up_to_page(session_code, max_page, fetch_delay)
