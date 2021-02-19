@@ -1,1 +1,0 @@
-import parlpy.bills.bill_list_fetcher

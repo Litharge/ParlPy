@@ -11,6 +11,7 @@ import numpy
 
 from bs4 import BeautifulSoup
 
+
 # class that will have a method to fetch all bill titles, with its associated data:
 # * associated link to further details
 # * last updated date
@@ -18,7 +19,7 @@ from bs4 import BeautifulSoup
 # is older than the bills_df_last_updated, amending the bills_df as it does so
 class BillsOverview():
     def __init__(self, debug=False):
-        # variable to determine whether to print output as it is collected
+        # whether to print output as it is collected
         self.debug = debug
 
         self.bills_overview_data = pd.DataFrame([], columns=["bill_title", "last_updated", "bill_detail_path"])
@@ -164,13 +165,18 @@ class BillsOverview():
     # all sessions
     # currently gets titles, updated dates, further information paths
     # fetch_delay is approx time in seconds of delay between fetching site pages
-    def update_all_bills_in_session(self, session_name="2019 - 21", fetch_delay=0):
-        session = self.__bills_overview_session[session_name]
+    def update_all_bills_in_session(
+            self,
+            session_name="2019-21",
+            sort_order="Updated (newest first)",
+            fetch_delay=0):
 
-        max_page = self.__determine_number_pages_for_session(session)
+        # get the integer strings corresponding to session string and sort order string
+        session_code = self.__bills_overview_session[session_name]
+        sort_order_code = self.__bills_overview_sort_order[sort_order]
 
-        sort_order = self.__bills_overview_sort_order["Updated (newest first)"]
+        max_page = self.__determine_number_pages_for_session(session_code)
 
         for i in range(1, max_page+1):
             time.sleep(fetch_delay)
-            self.__fetch_all_overview_info_on_page(session, sort_order, i)
+            self.__fetch_all_overview_info_on_page(session_code, sort_order_code, i)
