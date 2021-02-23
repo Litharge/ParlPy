@@ -262,7 +262,8 @@ class BillsOverview():
 
         # store the current datetime for future use, so we know we have just scraped
         to_store_datetime_last_scraped = datetime.datetime.now()
-        print("saving to_store_datetime_last_scraped {}".format(to_store_datetime_last_scraped))
+        if self.debug:
+            print("saving to_store_datetime_last_scraped {}".format(to_store_datetime_last_scraped))
         with open("datetime_last_scraped.p", "wb") as f:
             pickle.dump(to_store_datetime_last_scraped, f)
         print(self.last_updated)
