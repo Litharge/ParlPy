@@ -138,9 +138,14 @@ class BillsOverview():
 
     # puts the partial dataframe containing titles, their last updated dates and bill details paths into dataframe
     # member variable
-
-
-    def __add_page_data_to_bills_overview_data(self, titles, updated_dates, bill_details_paths, check_last_updated):
+    # if check_last_updated, only add up to the point that the bill's updated date is newer than our scraper last
+    # updated
+    def __add_page_data_to_bills_overview_data(
+            self,
+            titles,
+            updated_dates,
+            bill_details_paths,
+            check_last_updated=True):
         bill_tuple_list = []
 
         try:
@@ -217,7 +222,7 @@ class BillsOverview():
 
             (titles, updated_dates, bill_data_paths) = self.__fetch_all_overview_info_on_page(session_code, sort_order_code, i)
 
-            self.__add_page_data_to_bills_overview_data(titles, updated_dates, bill_data_paths, False)
+            self.__add_page_data_to_bills_overview_data(titles, updated_dates, bill_data_paths, check_last_updated=False)
 
         self.last_updated = datetime.datetime.now()
         print(self.last_updated)
@@ -250,13 +255,8 @@ class BillsOverview():
             (titles, updated_dates, bill_data_paths) = self.__fetch_all_overview_info_on_page(session_code,
                                                                                               sort_order_code, i)
 
-            # insert a test item that appears as though it was updated since the last scrape
-            #if last_updated != None:
-            #    titles.insert(0, "a bill that looks like it has been updated")
-            #    updated_dates.insert(0, datetime.datetime.now())
-            #    bill_data_paths.insert(0, "/test/path")
-
-            got_all_updated_bills = self.__add_page_data_to_bills_overview_data(titles, updated_dates, bill_data_paths, True)
+            got_all_updated_bills = self.__add_page_data_to_bills_overview_data(
+                titles, updated_dates, bill_data_paths, check_last_updated=True)
             # if we have all the bills which were updated since we last checked, no need to check any more pages
             if got_all_updated_bills:
                 break
@@ -268,7 +268,7 @@ class BillsOverview():
             pickle.dump(last_updated_to_be_pickled, f)
         print(self.last_updated)
 
-    # this method uses a pickled variable (so that ths package can be run periodically, but not have to be persistent)
+    # this method uses a pickled variable (so that ths package can be run periodically)
     # puts into self.bills_overview_data, bills which have been updated since the method was last called
     # these can then be compared to values in a database for example
     def get_changed_bills_in_session(self, session_name="2019-21", fetch_delay=0):
