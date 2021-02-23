@@ -10,3 +10,6 @@ __pycache__*
 # ignore builds
 build/ 
 dist/
+
+# ignore pickled variables
+*.p
