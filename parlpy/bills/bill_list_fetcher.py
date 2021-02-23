@@ -134,7 +134,8 @@ class BillsOverview():
 
             self.bills_overview_data = pd.concat([self.bills_overview_data, page_df])
 
-            print("last item on page: {}".format(page_df.iloc[-1]))
+            if self.debug:
+                print("last item on page: {}".format(page_df.iloc[-1]))
 
     # puts the partial dataframe containing titles, their last updated dates and bill details paths into dataframe
     # member variable
