@@ -22,6 +22,8 @@ class TestOverview(unittest.TestCase):
     # check that the second call to get_changed_bills_in_session puts more or equal items into bill_overview_data
     # than the first
     def test_update_only_needed(self):
+        self.test_fetcher.reset_datetime_last_scraped()
+
         self.test_fetcher.get_changed_bills_in_session()
         print("dataframe:")
         print(self.test_fetcher.bills_overview_data)

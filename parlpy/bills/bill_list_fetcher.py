@@ -5,6 +5,7 @@ import re
 import time
 import datetime
 import pickle
+import os
 
 import pandas as pd
 import numpy
@@ -281,3 +282,9 @@ class BillsOverview():
         max_page = self.__determine_number_pages_for_session(session_code)
 
         self.__update_bills_overview_with_updated_bills_only_up_to_page(session_code, max_page, fetch_delay)
+
+    def reset_datetime_last_scraped(self):
+        if os.path.exists("datetime_last_scraped.p"):
+            os.remove("datetime_last_scraped.p")
+        else:
+            print("datetime last scraped not recorded")
