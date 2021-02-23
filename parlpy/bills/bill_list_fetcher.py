@@ -149,20 +149,20 @@ class BillsOverview():
         bill_tuple_list = []
 
         try:
-            with open("test.p", "rb") as f:
-                loaded_last_updated = pickle.load(f)
+            with open("datetime_last_scraped.p", "rb") as f:
+                loaded_datetime_last_scraped = pickle.load(f)
         except (FileNotFoundError) as e:
             # this is the case if the pickle file has been manually deleted, or if this is the first time
             # get_changed_bills_in_session is running
-            loaded_last_updated = None
+            loaded_datetime_last_scraped = None
 
         for i in range(len(titles)):
-            if loaded_last_updated != None and check_last_updated:
-                delta_from_last_update_call = loaded_last_updated - updated_dates[i]
+            if loaded_datetime_last_scraped != None and check_last_updated:
+                delta_from_last_update_call = loaded_datetime_last_scraped - updated_dates[i]
                 if self.debug:
                     print("bill title: {}".format(titles[i]))
                     print("bill updated date: {} type {}".format(updated_dates[i], type(updated_dates[i])))
-                    print("last updated: {}".format(loaded_last_updated))
+                    print("last updated: {}".format(loaded_datetime_last_scraped))
                 if delta_from_last_update_call.total_seconds() > 0:
                     if self.debug:
                         print("found newest bill NOT updated recently (first to be discarded)")
@@ -260,11 +260,11 @@ class BillsOverview():
             if got_all_updated_bills:
                 break
 
-        # todo - for tests, set this value to be eg a week ago and see which bills are collected
-        last_updated_to_be_pickled = datetime.datetime.now()
-        print("saving last_updated_to_be_pickled {}".format(last_updated_to_be_pickled))
-        with open("test.p", "wb") as f:
-            pickle.dump(last_updated_to_be_pickled, f)
+        # store the current datetime for future use, so we know we have just scraped
+        to_store_datetime_last_scraped = datetime.datetime.now()
+        print("saving to_store_datetime_last_scraped {}".format(to_store_datetime_last_scraped))
+        with open("datetime_last_scraped.p", "wb") as f:
+            pickle.dump(to_store_datetime_last_scraped, f)
         print(self.last_updated)
 
     # this method uses a pickled variable (so that ths package can be run periodically)
