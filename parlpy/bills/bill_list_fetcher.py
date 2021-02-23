@@ -153,15 +153,16 @@ class BillsOverview():
 
             if loaded_last_updated != None and check_last_updated:
                 delta_from_last_update_call = loaded_last_updated - updated_dates[i]
-                #print("difference from updated time: {}".format)
-                print("bill title: {}".format(titles[i]))
-                print("bill updated date: {} type {}".format(updated_dates[i], type(updated_dates[i])))
-                print("last updated: {}".format(loaded_last_updated))
+                if self.debug:
+                    print("bill title: {}".format(titles[i]))
+                    print("bill updated date: {} type {}".format(updated_dates[i], type(updated_dates[i])))
+                    print("last updated: {}".format(loaded_last_updated))
                 if delta_from_last_update_call.total_seconds() > 0:
-                    print("found newest bill NOT updated recently (first to be discarded)")
-                    print("delta in seconds {}".format(delta_from_last_update_call.total_seconds()))
-                    print(titles[i])
-                    print(updated_dates[i])
+                    if self.debug:
+                        print("found newest bill NOT updated recently (first to be discarded)")
+                        print("delta in seconds {}".format(delta_from_last_update_call.total_seconds()))
+                        print(titles[i])
+                        print(updated_dates[i])
 
                     self.put_bill_info_in_list_into_bills_overview_data(bill_tuple_list)
 
