@@ -143,14 +143,15 @@ class BillsOverview():
     def __add_page_data_to_bills_overview_data(self, titles, updated_dates, bill_details_paths, check_last_updated):
         bill_tuple_list = []
 
-        for i in range(len(titles)):
-            try:
-                with open("test.p", "rb") as f:
-                    loaded_last_updated = pickle.load(f)
-            except (FileNotFoundError) as e:
-                print("not found last updated datetime")
-                loaded_last_updated = None
+        try:
+            with open("test.p", "rb") as f:
+                loaded_last_updated = pickle.load(f)
+        except (FileNotFoundError) as e:
+            # this is the case if the pickle file has been manually deleted, or if this is the first time
+            # get_changed_bills_in_session is running
+            loaded_last_updated = None
 
+        for i in range(len(titles)):
             if loaded_last_updated != None and check_last_updated:
                 delta_from_last_update_call = loaded_last_updated - updated_dates[i]
                 if self.debug:
@@ -181,7 +182,6 @@ class BillsOverview():
         # last item was updated since we last called, so proceed to next page
         return False
 
-
     # adds bill overview information to self.bills_overview_data
     def __fetch_all_overview_info_on_page(self, session, sort_order, page):
         page_query_string = urllib.parse.urlencode(
@@ -206,7 +206,6 @@ class BillsOverview():
         bill_data_paths = self.__get_bill_data_path_list_from_card_tags(card_tags)
 
         return (titles, updated_dates, bill_data_paths)
-
 
     def __update_bills_overview_up_to_page(self, session_code, max_page, fetch_delay, smart_update=True):
         # get in order of updated, because update_bills_overview_up_to_page is planned to only crawl pages with
