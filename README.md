@@ -19,7 +19,7 @@ To fetch bills updated since our scraper was last called (uses pickled variable 
     from parlpy.bills.bill_list_fetcher import BillsOverview
 
     test_fetcher = BillsOverview()
-    test_fetcher.get_changed_bills_in_session(session="All")
+    test_fetcher.get_changed_bills_in_session(session_name="All")
     print(test_fetcher.bills_overview_data)
 
 ... script can stop and be rerun later, next time bills_overview_data will contain fewer items, unless 
