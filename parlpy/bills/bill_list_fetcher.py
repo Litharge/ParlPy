@@ -235,7 +235,6 @@ class BillsOverview():
             self,
             session_name="2019-21",
             fetch_delay=0,
-            update_last_updated=False
     ):
         # reset df
         self.bills_overview_data = pd.DataFrame([], columns=["bill_title", "last_updated", "bill_detail_path"])
