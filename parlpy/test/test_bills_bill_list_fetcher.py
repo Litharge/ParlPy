@@ -13,10 +13,8 @@ class TestOverview(unittest.TestCase):
     # create BillsOverview object ready for tests
     # also print result
     def setUp(self):
-        test_fetcher = BillsOverview(debug=False)
+        self.test_fetcher = BillsOverview(debug=False)
         #test_fetcher.update_all_bills_in_session()
-
-        self.test_fetcher = test_fetcher
 
         pd.set_option("display.max_columns", len(self.test_fetcher.bills_overview_data.columns))
 
@@ -26,12 +24,14 @@ class TestOverview(unittest.TestCase):
         self.test_fetcher.get_changed_bills_in_session()
         print("dataframe:")
         print(self.test_fetcher.bills_overview_data)
-
-        time.sleep(5)
+        df_row_count_1 = len(self.test_fetcher.bills_overview_data.index)
 
         self.test_fetcher.get_changed_bills_in_session()
         print("dataframe:")
         print(self.test_fetcher.bills_overview_data)
+        df_row_count_2 = len(self.test_fetcher.bills_overview_data.index)
+
+        self.assertTrue(df_row_count_1 > df_row_count_2)
 
     """
     # test types of dataframe

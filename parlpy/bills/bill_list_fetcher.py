@@ -138,16 +138,25 @@ class BillsOverview():
 
     # puts the partial dataframe containing titles, their last updated dates and bill details paths into dataframe
     # member variable
+
+
     def __add_page_data_to_bills_overview_data(self, titles, updated_dates, bill_details_paths, check_last_updated):
         bill_tuple_list = []
 
         for i in range(len(titles)):
-            if self.last_updated != None and check_last_updated:
+            try:
+                with open("test.p", "rb") as f:
+                    loaded_last_updated = pickle.load(f)
+            except (FileNotFoundError) as e:
+                print("not found last updated datetime")
+                loaded_last_updated = None
+
+            if loaded_last_updated != None and check_last_updated:
+                delta_from_last_update_call = loaded_last_updated - updated_dates[i]
+                #print("difference from updated time: {}".format)
                 print("bill title: {}".format(titles[i]))
                 print("bill updated date: {} type {}".format(updated_dates[i], type(updated_dates[i])))
-                print("last updated: {}".format(self.last_updated))
-                delta_from_last_update_call = self.last_updated - updated_dates[i]
-                #print("difference from updated time: {}".format)
+                print("last updated: {}".format(loaded_last_updated))
                 if delta_from_last_update_call.total_seconds() > 0:
                     print("found newest bill NOT updated recently (first to be discarded)")
                     print("delta in seconds {}".format(delta_from_last_update_call.total_seconds()))
@@ -197,9 +206,7 @@ class BillsOverview():
 
         return (titles, updated_dates, bill_data_paths)
 
-    # todo: make this more intelligent - only crawl pages up to ones containing bills updated since this method was
-    #   last called (iff smart_update==True)
-    #   note: test that self.last_updated != none AND that initial scrape was successful
+
     def __update_bills_overview_up_to_page(self, session_code, max_page, fetch_delay, smart_update=True):
         # get in order of updated, because update_bills_overview_up_to_page is planned to only crawl pages with
         # bills updated since the method was last called
@@ -243,21 +250,22 @@ class BillsOverview():
             (titles, updated_dates, bill_data_paths) = self.__fetch_all_overview_info_on_page(session_code,
                                                                                               sort_order_code, i)
 
-            print("titles: {}".format(titles))
-            print("updated_dates: {}".format(updated_dates))
-            print("bill_data_paths: {}".format(bill_data_paths))
-
-            if self.last_updated != None:
-                titles.insert(0, "a bill that looks like it has been updated")
-                updated_dates.insert(0, datetime.datetime.now())
-                bill_data_paths.insert(0, "/test/path")
+            # insert a test item that appears as though it was updated since the last scrape
+            #if last_updated != None:
+            #    titles.insert(0, "a bill that looks like it has been updated")
+            #    updated_dates.insert(0, datetime.datetime.now())
+            #    bill_data_paths.insert(0, "/test/path")
 
             got_all_updated_bills = self.__add_page_data_to_bills_overview_data(titles, updated_dates, bill_data_paths, True)
             # if we have all the bills which were updated since we last checked, no need to check any more pages
             if got_all_updated_bills:
                 break
 
-        self.last_updated = datetime.datetime.now()
+        # todo - for tests, set this value to be eg a week ago and see which bills are collected
+        last_updated_to_be_pickled = datetime.datetime.now()
+        print("saving last_updated_to_be_pickled {}".format(last_updated_to_be_pickled))
+        with open("test.p", "wb") as f:
+            pickle.dump(last_updated_to_be_pickled, f)
         print(self.last_updated)
 
     # this method uses a pickled variable (so that ths package can be run periodically, but not have to be persistent)
