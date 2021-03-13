@@ -1,130 +1,76 @@
-import urllib.parse
-from collections import OrderedDict
-from urllib.request import urlopen
-from bs4 import BeautifulSoup
-
+import datetime
+import time
 import pandas as pd
+import requests
+import json
+
+
+def jprint(obj):
+    # create a formatted string of the Python JSON object
+    text = json.dumps(obj, sort_keys=True, indent=2)
+    print(text)
 
 
 class MPOverview:
     def __init__(self):
-        self.__mp_overview_scheme = "https"
-        self.__mp_overview_netloc = "members.parliament.uk"
-        self.__gender = {
-            "Any": "Any",
-            "Male": "Male",
-            "Female": "Female",
-            "Non-binary": "Nonbinary",
-        }
-        # New random number generator idea: Use the government's party id
-        # todo: scrape this from website? Might change
-        self.__party_id = {
-            "All": "",
-            "Alliance": "1",
-            "Conservative": "4",
-            "Democratic Unionist Party": "7",
-            "Green Party": "44",
-            "Independent": "8",
-            "Labour": "15",
-            "Liberal Democrat": "17",
-            "Plaid Cymru": "22",
-            "Scottish National Party": "29",
-            "Sinn Fein": "30", "Sinn Féin": "30",
-            "Social Democratic & Labour Party": "31",
-            "Speaker": "47",
-        }
-        self.__for_parliament = {
-            "Current MPs": "0",
-            "All MPs": "1", "All MPs - current and former": "1",
-            "MPs At dissolution - November 2019": "2",
-            "MPs during 2017-2019 Parliament": "3",
-            "MPs during 2015-2017 Parliament": "4",
-        }
-        # todo Is this list extensive?
-        self.__titles = {
-            "Mr",
-            "Dr",
-            "Dame",
-            "Sir",
-            "Mrs",
-            "Ms",
-            "Miss",
-        }
-        self.mp_data = pd.DataFrame([], columns=["first_name", "last_name", "mp_detail_path"])
-
         self.last_updated = None
+        self.api_url = "https://members-api.parliament.uk/api/"
+        self.bills_overview_data = pd.DataFrame([], columns=["bill_title", "last_updated", "bill_detail_path"])
 
-    def __fetch_all_overview_info_on_page(self, party_id, gender, for_parliament, page):
-        page_query_string = urllib.parse.urlencode(
-            OrderedDict(
-                PartyId=party_id,
-                Gender=gender,
-                ForParliament=for_parliament,
-                page=str(page),
-            )
-        )
+    def get_all_members(self, fetch_delay: int = 0, limit: int = None, verbose: bool = False):
+        # Probably a better way of doing this? Dynamically?
+        def get_n_href(res, n):
+            return res.json()["links"][n]["href"]
 
-        url = urllib.parse.urlunparse((
-            self.__mp_overview_scheme, self.__mp_overview_netloc, "", "", page_query_string, ""
-        ))
+        def get_self_href(res):
+            return get_n_href(res, 0)
 
-        html_data = urlopen(url)
-        data_bs = BeautifulSoup(html_data.read(), 'html.parser')
+        def get_next_href(res):
+            return get_n_href(res, 1)
 
-        card_tags = data_bs.find_all(class_="card-member")
+        responses = []
+        response = self.get_members()
+        take = int(response.json()["take"])
+        skip = 0
+        while get_self_href(response) != get_next_href(response):
 
-        names = self.__get_names_list_from_card_tags(card_tags)
+            # Calculate next skip
+            skip += take
 
-        area = self.__get_area_list_from_card_tags(card_tags)
+            # Save response to array
+            responses.append(response.json())
 
-        party = self.__get_party_list_from_card_tags(card_tags)
+            # Respect limit, if it's set
+            if limit is not None and skip > limit:
+                if verbose:
+                    jprint(response.json())
+                    print(f"Limit {limit} reached.")
 
-        mp_data_paths = self.__get_mp_data_path_list_from_card_tags(card_tags)
+                break
 
-        return names, party, area, mp_data_paths
+            if verbose:
+                # Print response
+                jprint(response.json())
+                # Wait fetch_delay seconds
+                print(f"Waiting {fetch_delay}s... ")
+                time.sleep(fetch_delay)
+                print("Getting...")
+            else:
+                time.sleep(fetch_delay)
 
-    def __get_names_list_from_card_tags(self, card_tags):
-        names = []
-        for card in card_tags:
-            name = card.find(class_="primary-info")
-            names.append(self.__format_name(name.text))
-        return names
+            # Get next response
+            response = self.get_members(params={"skip": skip})
 
-    def __format_name(self, name: str):
-        name = name.split(" ")
-        name_dict = {
-            "title": ""
-        }
-        if name[0] in self.__titles:
-            name_dict["title"] = name[0]
-            del name[0]
+        self.last_updated = datetime.datetime.now()
+        print(responses)
 
-        name_dict["first_name"] = name[0]
-        name_dict["last_name"] = " ".join(name[1:])
-        return name_dict
+    def get_members(self, params: dict = None) -> requests.Response:
+        if params is None:
+            params = {}
 
-    @staticmethod
-    def __get_area_list_from_card_tags(card_tags):
-        areas = []
-        for card in card_tags:
-            area = card.find(class_="indicator-label")
-            areas.append(area.text)
-        return areas
+        # todo Actual name for this?
+        ext = "Members/Search"
 
-    @staticmethod
-    def __get_party_list_from_card_tags(card_tags):
-        parties = []
-        for card in card_tags:
-            party = card.find(class_="secondary-info")
-            parties.append(party.text)
-        return parties
+        response = requests.get(self.api_url + ext, params=params)
 
-    @staticmethod
-    def __get_mp_data_path_list_from_card_tags(card_tags):
-        mp_details_paths = []
-        for card in card_tags:
-            mp_data_path = card["href"]
-
-            mp_details_paths.append(mp_data_path)
-
-        return mp_details_paths
+        return response
