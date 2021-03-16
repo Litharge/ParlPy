@@ -12,4 +12,14 @@ def get_bill_details(overview: blf.BillsOverview):
         detail_path = b[3]
         summary = sf.get_summary(detail_path)
 
+        # todo get the bill name minus its "Bill" or "Act" suffix
+
+        # todo get the earliest session start year for the bill (a bill may span multiple sessions)
+
+        # todo get the latest session end year for the bill (a bill may span multiple sessions)
+
+        # todo use the bill name and narrow results using the start and end years to get a divisions results object
+
+        # todo yield tuple of (summary, bill_division_results)
+
         yield summary
