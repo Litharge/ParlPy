@@ -76,8 +76,8 @@ Public instance methods:
 
 # Data Sources and Rationale
 
-A list of extant bills and acts are scraped from https://bills.parliament.uk. Scraping was the only choice as 
-outlined below
+A list of extant bills and acts are scraped from https://bills.parliament.uk. Scraping was the only choice for
+collecting this list as outlined in the bullet points below
 * There is an official RSS feed, however
 this only lists the 50 most recently updated bills, so we do not use this source as we would not have been able to 
 collect older bills.
@@ -91,13 +91,15 @@ does not provide bills.
 The package however does make use of the official UK Parliamentary API for collecting division data and for collecting 
 data on MP's.
 
-## parlpy.bills.bill_list_fetcher.BillsOverview()
+## parlpy.bills.bill_list_fetcher 
+`BillsOverview.get_changed_bills_in_session()` and `BillsOverview.update_all_bills_in_session()`
+
+Both scrape data from https://bills.parliament.uk
+
+## parlpy.bills.bill_summary_fetcher
+`get_summary()`
 
 Scrapes data from https://bills.parliament.uk
-
-## parlpy.bills.bill_summary_fetcher.get_summary()
-
-Scrapes data from
 
 ---
 
