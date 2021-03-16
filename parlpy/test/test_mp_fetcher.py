@@ -9,5 +9,5 @@ def jprint(obj):
 
 
 mp = MPOverview()
-mp.get_all_members(verbose=True)
-print(mp.mp_overview_data)
+# mp.get_active_MPs(verbose=True)
+mp.get_all_members(params={"IsCurrentMember": True, "House": "Commons", "skip": 620}, verbose=True)
