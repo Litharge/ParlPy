@@ -23,7 +23,7 @@ class BillsOverview():
         # whether to print output as it is collected
         self.debug = debug
 
-        self.bills_overview_data = pd.DataFrame([], columns=["bill_title", "last_updated", "bill_detail_path"])
+        self.bills_overview_data = pd.DataFrame([], columns=["bill_title", "last_updated", "bill_detail_path", "session"])
         self.last_updated = None
 
         # record number of pages
@@ -123,11 +123,24 @@ class BillsOverview():
 
         return bill_details_paths
 
+    def __get_bill_sessions_list_from_card_tags(self, card_tags):
+        bill_sessions = []
+        for o in card_tags:
+            # get text of form "Session 20xx-yy, 20ww-zz..."
+            sessions = o.find(class_="secondary-info")
+            sessions_text = sessions.text
+            # put into list with members of form 20aa-bb
+            sessions_text = sessions_text.split("Session ")[1]
+            sessions_list = sessions_text.split(", ")
+            bill_sessions.append(sessions_list)
+
+        return bill_sessions
+
     def put_bill_info_in_list_into_bills_overview_data(self, bill_tuple_list):
         if len(bill_tuple_list) > 0:
-            bill_tuple_arr = numpy.array(bill_tuple_list)
+            bill_tuple_arr = numpy.array(bill_tuple_list, dtype=object)
 
-            page_df = pd.DataFrame(bill_tuple_arr, columns=["bill_title", "last_updated", "bill_detail_path"])
+            page_df = pd.DataFrame(bill_tuple_arr, columns=["bill_title", "last_updated", "bill_detail_path", "session"])
 
             new_indices = [x for x in
                            range(len(self.bills_overview_data.index), len(self.bills_overview_data.index) + len(page_df))]
@@ -147,6 +160,7 @@ class BillsOverview():
             titles,
             updated_dates,
             bill_details_paths,
+            bill_sessions,
             check_last_updated=True):
         bill_tuple_list = []
 
@@ -180,7 +194,7 @@ class BillsOverview():
                 else:
                     print("found bill updated recently {}".format(titles[i]))
 
-            bill_tuple_list.append((titles[i], updated_dates[i], bill_details_paths[i]))
+            bill_tuple_list.append((titles[i], updated_dates[i], bill_details_paths[i], bill_sessions[i]))
 
             self.listed_bills_counter += 1
 
@@ -211,8 +225,10 @@ class BillsOverview():
         titles = self.__get_title_list_from_card_tags(card_tags)
         updated_dates = self.__get_updated_dates_list_from_card_tags(card_tags)
         bill_data_paths = self.__get_bill_data_path_list_from_card_tags(card_tags)
+        sessions = self.__get_bill_sessions_list_from_card_tags(card_tags)
 
-        return (titles, updated_dates, bill_data_paths)
+        # list of titles, list of updated_dates, list of bill_data_paths, list of list of sessions
+        return (titles, updated_dates, bill_data_paths, sessions)
 
 
     def __update_bills_overview_up_to_page(self, session_code, max_page, fetch_delay, smart_update=True):
@@ -223,9 +239,9 @@ class BillsOverview():
         for i in range(1, max_page+1):
             time.sleep(fetch_delay)
 
-            (titles, updated_dates, bill_data_paths) = self.__fetch_all_overview_info_on_page(session_code, sort_order_code, i)
+            (titles, updated_dates, bill_data_paths, bill_sessions) = self.__fetch_all_overview_info_on_page(session_code, sort_order_code, i)
 
-            self.__add_page_data_to_bills_overview_data(titles, updated_dates, bill_data_paths, check_last_updated=False)
+            self.__add_page_data_to_bills_overview_data(titles, updated_dates, bill_data_paths, bill_sessions, check_last_updated=False)
 
         self.last_updated = datetime.datetime.now()
         print(self.last_updated)
@@ -241,7 +257,7 @@ class BillsOverview():
             fetch_delay=0,
     ):
         # reset df
-        self.bills_overview_data = pd.DataFrame([], columns=["bill_title", "last_updated", "bill_detail_path"])
+        self.bills_overview_data = pd.DataFrame([], columns=["bill_title", "last_updated", "bill_detail_path", "session"])
 
         # get the integer string corresponding to session string
         session_code = self.__bills_overview_session[session_name]
@@ -255,11 +271,11 @@ class BillsOverview():
 
         for i in range(1, max_page + 1):
             time.sleep(fetch_delay)
-            (titles, updated_dates, bill_data_paths) = self.__fetch_all_overview_info_on_page(session_code,
+            (titles, updated_dates, bill_data_paths, bill_sessions) = self.__fetch_all_overview_info_on_page(session_code,
                                                                                               sort_order_code, i)
 
             got_all_updated_bills = self.__add_page_data_to_bills_overview_data(
-                titles, updated_dates, bill_data_paths, check_last_updated=True)
+                titles, updated_dates, bill_data_paths, bill_sessions, check_last_updated=True)
             # if we have all the bills which were updated since we last checked, no need to check any more pages
             if got_all_updated_bills:
                 break
@@ -277,7 +293,7 @@ class BillsOverview():
     # these can then be compared to values in a database for example
     def get_changed_bills_in_session(self, session_name="2019-21", fetch_delay=0):
         # reset df ready for new data
-        self.bills_overview_data = pd.DataFrame([], columns=["bill_title", "last_updated", "bill_detail_path"])
+        self.bills_overview_data = pd.DataFrame([], columns=["bill_title", "last_updated", "bill_detail_path", "session"])
 
         session_code = self.__bills_overview_session[session_name]
 
