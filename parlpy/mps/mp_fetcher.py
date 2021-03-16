@@ -11,10 +11,29 @@ def jprint(obj):
     print(text)
 
 
+# def underscore_to_camelcase(name: str) -> str:
+#     parts = [part[0].upper() + part[1:].lower() for part in name.split("_")]
+#     camel = "".join(parts)
+#     return camel[0].lower() + camel[1:]
+
+
 class MPOverview:
+    # Parameters for getting alive MPs
+    current_mp_params = {
+        "IsCurrentMember": True,
+        "House": "Commons",
+    }
+
     def __init__(self):
+        """
+        Overview class for members.
+        """
         self.last_updated = None
+
         self.api_url = "https://members-api.parliament.uk/api/"
+
+        self.max_take = 20
+
         self.columns = [
             # Display Name
             "name_display",
@@ -25,7 +44,7 @@ class MPOverview:
             # Name to list member by
             "name_list_as",
             # Member ID (for further information)
-            "id",
+            "member_id",
             # Gender
             "gender",
             # Party that the member belongs to
@@ -35,7 +54,11 @@ class MPOverview:
         ]
         self.mp_overview_data = pd.DataFrame([], columns=self.columns)
 
-    def __add_member_to_data_from_api_response(self, response: requests.Response):
+    def __add_member_to_data_from_api_response(self, response: requests.Response) -> None:
+        """
+        Adds members from a response to the data
+        :param response: Response to add
+        """
         # jprint(response.json())
         for item in response.json()["items"]:
             value_obj = item["value"]
@@ -56,21 +79,31 @@ class MPOverview:
 
             self.mp_overview_data = self.mp_overview_data.append(values, ignore_index=True)
 
-    def get_all_members(self, fetch_delay: int = 0, limit: int = None, verbose: bool = False):
-        # Probably a better way of doing this? Dynamically?
-        def get_n_href(res, n):
-            return res.json()["links"][n]["href"]
+    def get_all_members(self, params: dict, fetch_delay: int = 0, limit: int = None, verbose: bool = False) -> None:
+        """
+        Get all members that fit the criteria stated in params and save in self.mp_overview_data
+        :param params: dictionary of parameters to pass
+        :param fetch_delay: Time (seconds) between fetching each 'page'
+        :param limit: Limit of number of members to retrieve.
+        :param verbose: Enable verbose mode
+        """
+        take = self.max_take
+        skip = params.get("skip", 0)
+        count = 0
+        while True:
+            # Get next response
+            response = self.__fetch_members(params=params)
 
-        def get_self_href(res):
-            return get_n_href(res, 0)
+            n_items = len(response.json()["items"])
 
-        def get_next_href(res):
-            return get_n_href(res, 1)
+            if response.status_code != 200:
+                print(f"Received status code {response.status_code}, terminating...")
+                break
 
-        response = self.get_members()
-        take = int(response.json()["take"])
-        skip = 0
-        while get_self_href(response) != get_next_href(response):
+            if n_items == 0:
+                break
+
+            count += n_items
             # Save response to dataframe
             self.__add_member_to_data_from_api_response(response)
 
@@ -78,7 +111,7 @@ class MPOverview:
             skip += take
 
             # Respect limit, if it's set
-            if limit is not None and skip >= limit:
+            if limit is not None and count >= limit:
                 if verbose:
                     jprint(response.json())
                     print(f"Limit {limit} reached.")
@@ -96,16 +129,33 @@ class MPOverview:
             else:
                 time.sleep(fetch_delay)
 
-            # Get next response
-            response = self.get_members(params={"skip": skip})
+            params["skip"] = skip
 
         now = datetime.datetime.now()
         if verbose:
-            print(f"Setting last_updated to {now}")
+            print(f"{count} members retrieved.")
+            print(f"Setting last_updated to {now}.")
             print(f"Updating finished.\n")
         self.last_updated = now
 
-    def get_members(self, params: dict = None) -> requests.Response:
+    def get_active_MPs(self, fetch_delay: int = 0, limit: int = None, verbose: bool = False):
+        """
+        Get all active MPs in parliament.
+        Wrapper for get_all_members. Uses the MPOverview.current_mp_params dict.
+        :param fetch_delay: Time (seconds) between fetching each 'page'
+        :param limit: Limit of number of members to retrieve.
+        :param verbose: Enable verbose mode
+        :return:
+        """
+
+        return self.get_all_members(self.current_mp_params, fetch_delay, limit, verbose)
+
+    def __fetch_members(self, params: dict = None) -> requests.Response:
+        """
+
+        :param params:
+        :return:
+        """
         if params is None:
             params = {}
 
