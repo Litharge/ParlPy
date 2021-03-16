@@ -39,6 +39,9 @@ class MPOverview:
         # jprint(response.json())
         for item in response.json()["items"]:
             value_obj = item["value"]
+            # Don't include dead people
+            if value_obj["latestHouseMembership"]["membershipEndReason"] == "Death":
+                continue
 
             values = {
                 "name_display": value_obj["nameDisplayAs"],
