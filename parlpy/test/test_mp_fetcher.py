@@ -9,5 +9,5 @@ def jprint(obj):
 
 
 mp = MPOverview()
-mp.get_all_members(verbose=True, limit=20)
+mp.get_all_members(verbose=True)
 print(mp.mp_overview_data)
