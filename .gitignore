@@ -13,3 +13,6 @@ dist/
 
 # ignore pickled variables
 *.p
+
+# ignore virtual env settings
+venv/*
