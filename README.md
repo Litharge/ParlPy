@@ -12,6 +12,16 @@ Written as part of University of Bath Integrated Project module.
 
     pipenv install ParlPy==0.1.0
 
+## Intended Usage
+
+A list of bills to collect information about is generated using either the `update_all_bills_in_session` or the 
+`get_changed_bills_in_session` methods of a BillsOverview object from parlpy.bills.bill_list_fetcher. The former 
+simply gets a list of all bills and places them in member DataFrame `bills_overview_data`. The latter has persistence, 
+so that its first run behaves like `update_all_bills_in_session`, but after this places only bills updated after it 
+was last run in the DataFrame.
+
+The BillsOverview object is then passed to todo: iterator
+
 ## Example Usage
 
 To fetch bills updated since our scraper was last called (uses pickled variable for persistence between program runs)
@@ -23,9 +33,9 @@ To fetch bills updated since our scraper was last called (uses pickled variable 
     print(test_fetcher.bills_overview_data)
 
 ... script can stop and be rerun later, next time bills_overview_data will contain fewer items, unless 
-reset_datetime_last_scraped() has been called first
+reset_datetime_last_scraped() has been called first, which deletes the pickle file
 
-To fetch all bills in session and print them:
+To fetch all bills and print them:
 
     from parlpy.bills.bill_list_fetcher import BillsOverview
     
@@ -64,11 +74,30 @@ Public instance methods:
 
 ---
 
-# Data Sources
+# Data Sources and Rationale
 
-## BillsOverview()
+A list of extant bills and acts are scraped from https://bills.parliament.uk. Scraping was the only choice as 
+outlined below
+* There is an official RSS feed, however
+this only lists the 50 most recently updated bills, so we do not use this source as we would not have been able to 
+collect older bills.
+  
+* The API at https://explore.data.parliament.uk/?endpoint=bills does not contain bills more recent 
+than 2018, so we do not utilise this as it does not present new bills. 
+  
+* The recent API https://developer.parliament.uk/
+does not provide bills.
 
-Fetches data from https://bills.parliament.uk
+The package however does make use of the official UK Parliamentary API for collecting division data and for collecting 
+data on MP's.
+
+## parlpy.bills.bill_list_fetcher.BillsOverview()
+
+Scrapes data from https://bills.parliament.uk
+
+## parlpy.bills.bill_summary_fetcher.get_summary()
+
+Scrapes data from
 
 ---
 
