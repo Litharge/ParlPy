@@ -1,7 +1,7 @@
 import unittest
 import datetime
 
-from parlpy.bills.bill_votes_fetcher import fetch_votes
+import parlpy.bills.bill_votes_fetcher as bvf
 
 
 
@@ -10,6 +10,10 @@ class TestVotes(unittest.TestCase):
         mock_start_time = datetime.date(2019,12,9)
         mock_end_time = None
 
-        r = fetch_votes('financial services', mock_start_time, mock_end_time)
+        bill_divisions_list = bvf.get_divisions_information('financial services', mock_start_time, mock_end_time)
 
-        print(r.json())
+        for d in bill_divisions_list:
+            print(f"div name {d.division_name}")
+            print(f"stage {d.division_stage}")
+            print(f"ayes {d.ayes}")
+            print(f"noes {d.noes}")

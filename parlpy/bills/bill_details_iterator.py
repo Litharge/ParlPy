@@ -19,7 +19,7 @@ def get_bill_details(overview: blf.BillsOverview):
         print(f"detail path {detail_path}")
         summary = sf.get_summary(detail_path)
 
-        # todo get the bill name minus its "Bill" or "Act" suffix
+        # get the bill name minus its "Bill" or "Act" suffix
         title_stripped = b[1]
 
         # get the earliest session start year for the bill (a bill may span multiple sessions)
@@ -32,17 +32,7 @@ def get_bill_details(overview: blf.BillsOverview):
         latest_end_date = datetime.date.fromisoformat(
             session_dates.parliamentary_session_end_dates[latest_session])
 
-        # todo use the bill name and narrow results using the start and end years to get a divisions results object
-        print(f"bill name {title_stripped}")
-        print(f"earliest {earliest_start_date.isoformat()}")
-        print(f"latest {latest_end_date.isoformat()}")
+        # use the bill name and narrow results using the start and end years to get a list of divisions results object
+        divisions_data_list = bvf.get_divisions_information(title_stripped, earliest_start_date, latest_end_date)
 
-        #divisions_json = bvf.fetch_votes(title_stripped, earliest_start_date, latest_end_date).text
-        #divisions_obj = json.loads(divisions_json)
-        #print(type(divisions_obj))
-        division_id_list = bvf.get_division_ids(title_stripped, earliest_start_date, latest_end_date)
-        print(f"division_id_list {division_id_list}")
-
-        # todo yield tuple of (summary, bill_division_results)
-
-        yield summary
+        yield summary, divisions_data_list
