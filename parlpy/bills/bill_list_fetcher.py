@@ -23,7 +23,7 @@ class BillsOverview():
         # whether to print output as it is collected
         self.debug = debug
 
-        self.bills_overview_data = pd.DataFrame([], columns=["bill_title", "last_updated", "bill_detail_path", "session"])
+        self.bills_overview_data = pd.DataFrame([], columns=["bill_title_stripped", "postfix", "last_updated", "bill_detail_path", "session"])
         self.last_updated = None
 
         # record number of pages
@@ -88,16 +88,43 @@ class BillsOverview():
 
         return max_page
 
-    def __get_title_list_from_card_tags(self, card_tags):
-        titles = []
+    def __get_title_stripped_and_postfix_list_from_card_tags(self, card_tags):
+        # list containing 2-tuples of form
+        # if title is "xyz Bill" then the first element of tuple is "xyz" and second element of tuple is "Bill"
+        # if title is "xyz Act 20ab" then the first element of tuple is "xyz" and second element of tuple is "Act 20ab"
+        # note that bill/act xyz may have title like:
+        # * "abc act 19uw (def) bill 20ab"
+        # * "abc act 19uw (def) act 20ab"
+        titles_stripped = []
+        postfixes = []
         for o in card_tags:
-            title = o.find(class_="primary-info")
-            titles.append(title.text)
+            title = o.find(class_="primary-info").text
+            # remove trailing "[HL]" if present
+            title_hl_removed = title.rsplit(" [HL]", 1)[0]
+
+            # todo: fails when ACT is all caps, as is the case for one bill in 2004-05 session
+            # split using the last occurrence of "Act" in the title
+            # this works for legislation with title "xyz Act 19/20ab" or "def Act 19/20gh ... Act 19/20ab"
+            if "Act" in title_hl_removed and "Bill" not in title_hl_removed:
+                title_stripped = title_hl_removed.rsplit(" Act", 1)[0]
+                # get the "Act 20/19ab" part
+                postfix = title_hl_removed.split(title_stripped, 1)[1]
+                postfix = postfix[1:]
+
+            # split using the last occurrence of "Bill" in the title
+            # this works for legislation with title "xyz Bill" or "def Act 19/20gh ... Bill"
+            if "Bill" in title_hl_removed:
+                title_stripped = title_hl_removed.rsplit(" Bill", 1)[0]
+                postfix = "Bill"
+                print(f"bill postfix: {postfix}")
+
+            titles_stripped.append(title_stripped)
+            postfixes.append(postfix)
 
         if self.debug:
-            print("title list for page {}".format(titles))
+            print("title list for page {}".format(titles_stripped_and_postfix))
 
-        return titles
+        return titles_stripped, postfixes
 
     def __get_updated_dates_list_from_card_tags(self, card_tags):
         updated_dates = []
@@ -140,7 +167,7 @@ class BillsOverview():
         if len(bill_tuple_list) > 0:
             bill_tuple_arr = numpy.array(bill_tuple_list, dtype=object)
 
-            page_df = pd.DataFrame(bill_tuple_arr, columns=["bill_title", "last_updated", "bill_detail_path", "session"])
+            page_df = pd.DataFrame(bill_tuple_arr, columns=["bill_title_stripped", "postfix", "last_updated", "bill_detail_path", "session"])
 
             new_indices = [x for x in
                            range(len(self.bills_overview_data.index), len(self.bills_overview_data.index) + len(page_df))]
@@ -152,12 +179,13 @@ class BillsOverview():
                 print("last item on page: {}".format(page_df.iloc[-1]))
 
     # puts the partial dataframe containing titles, their last updated dates and bill details paths into dataframe
-    # member variable
+    # member variable bills_overview_data
     # if check_last_updated, only add up to the point that the bill's updated date is newer than our scraper last
     # updated
     def __add_page_data_to_bills_overview_data(
             self,
-            titles,
+            titles_stripped,
+            postfixes,
             updated_dates,
             bill_details_paths,
             bill_sessions,
@@ -172,18 +200,19 @@ class BillsOverview():
             # get_changed_bills_in_session is running
             loaded_datetime_last_scraped = None
 
-        for i in range(len(titles)):
+        for i in range(len(titles_stripped)):
             if loaded_datetime_last_scraped != None and check_last_updated:
                 delta_from_last_update_call = loaded_datetime_last_scraped - updated_dates[i]
                 if self.debug:
-                    print("bill title: {}".format(titles[i]))
+                    print("bill title: {}".format(titles_stripped[i]))
                     print("bill updated date: {} type {}".format(updated_dates[i], type(updated_dates[i])))
                     print("last updated: {}".format(loaded_datetime_last_scraped))
+                # if bill found that was last updated since we last checked, return, we have added all the newest ones
                 if delta_from_last_update_call.total_seconds() > 0:
                     if self.debug:
                         print("found newest bill NOT updated recently (first to be discarded)")
                         print("delta in seconds {}".format(delta_from_last_update_call.total_seconds()))
-                        print(titles[i])
+                        print(titles_stripped[i])
                         print(updated_dates[i])
 
                     self.put_bill_info_in_list_into_bills_overview_data(bill_tuple_list)
@@ -192,9 +221,15 @@ class BillsOverview():
                     return got_all_updated_bills
 
                 else:
-                    print("found bill updated recently {}".format(titles[i]))
+                    print("found bill updated recently {}".format(titles_stripped[i]))
 
-            bill_tuple_list.append((titles[i], updated_dates[i], bill_details_paths[i], bill_sessions[i]))
+            bill_tuple_list.append(
+                (titles_stripped[i],
+                 postfixes[i],
+                 updated_dates[i],
+                 bill_details_paths[i],
+                 bill_sessions[i])
+            )
 
             self.listed_bills_counter += 1
 
@@ -222,13 +257,13 @@ class BillsOverview():
 
         card_tags = data_bs.find_all(class_="card-clickable")
 
-        titles = self.__get_title_list_from_card_tags(card_tags)
+        (titles_stripped, postfixes) = self.__get_title_stripped_and_postfix_list_from_card_tags(card_tags)
         updated_dates = self.__get_updated_dates_list_from_card_tags(card_tags)
         bill_data_paths = self.__get_bill_data_path_list_from_card_tags(card_tags)
         sessions = self.__get_bill_sessions_list_from_card_tags(card_tags)
 
         # list of titles, list of updated_dates, list of bill_data_paths, list of list of sessions
-        return (titles, updated_dates, bill_data_paths, sessions)
+        return (titles_stripped, postfixes, updated_dates, bill_data_paths, sessions)
 
 
     def __update_bills_overview_up_to_page(self, session_code, max_page, fetch_delay, smart_update=True):
@@ -239,9 +274,11 @@ class BillsOverview():
         for i in range(1, max_page+1):
             time.sleep(fetch_delay)
 
-            (titles, updated_dates, bill_data_paths, bill_sessions) = self.__fetch_all_overview_info_on_page(session_code, sort_order_code, i)
+            (titles_stripped, postfixes, updated_dates, bill_data_paths, bill_sessions) \
+                = self.__fetch_all_overview_info_on_page(session_code, sort_order_code, i)
 
-            self.__add_page_data_to_bills_overview_data(titles, updated_dates, bill_data_paths, bill_sessions, check_last_updated=False)
+            self.__add_page_data_to_bills_overview_data(titles_stripped, postfixes, updated_dates, bill_data_paths,
+                                                        bill_sessions, check_last_updated=False)
 
         self.last_updated = datetime.datetime.now()
         print(self.last_updated)
@@ -257,7 +294,7 @@ class BillsOverview():
             fetch_delay=0,
     ):
         # reset df
-        self.bills_overview_data = pd.DataFrame([], columns=["bill_title", "last_updated", "bill_detail_path", "session"])
+        self.bills_overview_data = pd.DataFrame([], columns=["bill_title_stripped", "postfix", "last_updated", "bill_detail_path", "session"])
 
         # get the integer string corresponding to session string
         session_code = self.__bills_overview_session[session_name]
@@ -271,11 +308,12 @@ class BillsOverview():
 
         for i in range(1, max_page + 1):
             time.sleep(fetch_delay)
-            (titles, updated_dates, bill_data_paths, bill_sessions) = self.__fetch_all_overview_info_on_page(session_code,
-                                                                                              sort_order_code, i)
+            (titles_stripped, postfixes, updated_dates, bill_data_paths, bill_sessions) \
+                = self.__fetch_all_overview_info_on_page(session_code, sort_order_code, i)
 
-            got_all_updated_bills = self.__add_page_data_to_bills_overview_data(
-                titles, updated_dates, bill_data_paths, bill_sessions, check_last_updated=True)
+            got_all_updated_bills = self.__add_page_data_to_bills_overview_data(titles_stripped, postfixes,
+                                                                                updated_dates, bill_data_paths,
+                                                                                bill_sessions, check_last_updated=True)
             # if we have all the bills which were updated since we last checked, no need to check any more pages
             if got_all_updated_bills:
                 break
@@ -293,7 +331,7 @@ class BillsOverview():
     # these can then be compared to values in a database for example
     def get_changed_bills_in_session(self, session_name="2019-21", fetch_delay=0):
         # reset df ready for new data
-        self.bills_overview_data = pd.DataFrame([], columns=["bill_title", "last_updated", "bill_detail_path", "session"])
+        self.bills_overview_data = pd.DataFrame([], columns=["bill_title_stripped", "postfix", "last_updated", "bill_detail_path", "session"])
 
         session_code = self.__bills_overview_session[session_name]
 
