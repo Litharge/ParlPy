@@ -31,8 +31,7 @@ def fetch_votes(
 # the earliest session with bill divisions recorded by the system is 2015-16
 def get_division_ids(bill_title_stripped: str,
         start_datetime: datetime.date,
-        end_datetime: datetime.date = None,
-        skip_old_bills = True
+        end_datetime: datetime.date = None
                      ) -> list:
 
 
@@ -60,10 +59,8 @@ def get_division_values(division_id):
     specific_division_obj = json.loads(response.text)
 
     division_title = specific_division_obj["Title"]
-    print(f"division_title {division_title}")
 
     ayes_data = specific_division_obj["Ayes"]
-    print(f"ayes_data {ayes_data}")
     ayes_ids = [a["MemberId"] for a in ayes_data]
 
     noes_data = specific_division_obj["Noes"]
@@ -96,6 +93,12 @@ def get_divisions_information(bill_title_stripped: str,
         start_datetime: datetime.date,
         end_datetime: datetime.date = None,
         skip_old_bills = True):
+    # we know that the earliest division is 2016-3-9
+    lower_limit_date = datetime.date(2016,3,9)
+    delta = end_datetime - lower_limit_date
+    if skip_old_bills and delta.total_seconds() < 0:
+        return []
+
     division_ids = get_division_ids(bill_title_stripped, start_datetime, end_datetime)
 
     division_information_list = []
