@@ -113,10 +113,17 @@ class BillsOverview():
 
             # split using the last occurrence of "Bill" in the title
             # this works for legislation with title "xyz Bill" or "def Act 19/20gh ... Bill"
-            if "Bill" in title_hl_removed:
+            elif "Bill" in title_hl_removed:
                 title_stripped = title_hl_removed.rsplit(" Bill", 1)[0]
                 postfix = "Bill"
                 print(f"bill postfix: {postfix}")
+
+            # special case that only one bill conforms to
+            elif "ACT" in title_hl_removed:
+                title_stripped = title_hl_removed.rsplit(" ACT", 1)[0]
+                # get the "Act 20/19ab" part
+                postfix = title_hl_removed.split(title_stripped, 1)[1]
+                postfix = postfix[1:]
 
             titles_stripped.append(title_stripped)
             postfixes.append(postfix)

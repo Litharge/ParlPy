@@ -59,7 +59,7 @@ class TestOverview(unittest.TestCase):
         print(self.test_fetcher.bills_overview_data.dtypes)
 
         # strings are stored as objects in dataframes
-        self.assertTrue(self.test_fetcher.bills_overview_data.bill_title.dtype == object)
+        self.assertTrue(self.test_fetcher.bills_overview_data.bill_title_stripped.dtype == object)
         self.assertTrue(self.test_fetcher.bills_overview_data.bill_detail_path.dtype == object)
 
         # check that last_updated is stored as datetime64[ns]
