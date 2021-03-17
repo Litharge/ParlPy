@@ -102,15 +102,15 @@ class BillsOverview():
             # remove trailing "[HL]" if present
             title_hl_removed = title.rsplit(" [HL]", 1)[0]
 
+            # todo: fails when ACT is all caps, as is the case for one bill in 2004-05 session
             # split using the last occurrence of "Act" in the title
             # this works for legislation with title "xyz Act 19/20ab" or "def Act 19/20gh ... Act 19/20ab"
             if "Act" in title_hl_removed and "Bill" not in title_hl_removed:
                 title_stripped = title_hl_removed.rsplit(" Act", 1)[0]
                 # get the "Act 20/19ab" part
                 postfix = title_hl_removed.split(title_stripped, 1)[1]
-                # remove leading space
                 postfix = postfix[1:]
-                print(f"act postfix: {postfix}")
+
             # split using the last occurrence of "Bill" in the title
             # this works for legislation with title "xyz Bill" or "def Act 19/20gh ... Bill"
             if "Bill" in title_hl_removed:
