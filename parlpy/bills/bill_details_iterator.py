@@ -4,8 +4,11 @@
 import parlpy.bills.bill_list_fetcher as blf
 import parlpy.bills.summary_fetcher as sf
 import parlpy.utils.dates as session_dates
+import parlpy.bills.bill_votes_fetcher as bvf
 
 import datetime
+
+import json
 
 def get_bill_details(overview: blf.BillsOverview):
     # construct
@@ -33,6 +36,12 @@ def get_bill_details(overview: blf.BillsOverview):
         print(f"bill name {title_stripped}")
         print(f"earliest {earliest_start_date.isoformat()}")
         print(f"latest {latest_end_date.isoformat()}")
+
+        #divisions_json = bvf.fetch_votes(title_stripped, earliest_start_date, latest_end_date).text
+        #divisions_obj = json.loads(divisions_json)
+        #print(type(divisions_obj))
+        division_id_list = bvf.get_division_ids(title_stripped, earliest_start_date, latest_end_date)
+        print(f"division_id_list {division_id_list}")
 
         # todo yield tuple of (summary, bill_division_results)
 
