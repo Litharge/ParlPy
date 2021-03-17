@@ -80,5 +80,10 @@ def __fetch_summary(detail_path: str, base_url="https://bills.parliament.uk/") -
     summary_element = data_bs.find(class_="block block-page").find(class_="text-break")
 
     # Get text from <div>, and remove the leading TAB
-    summary_text = summary_element.text.strip()
+    if summary_element is not None:
+        summary_text = summary_element.text.strip()
+    # if no summary could be found, use empty string
+    else:
+        summary_text = ""
+
     return summary_text
