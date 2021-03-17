@@ -102,7 +102,6 @@ class BillsOverview():
             # remove trailing "[HL]" if present
             title_hl_removed = title.rsplit(" [HL]", 1)[0]
 
-            # todo: fails when ACT is all caps, as is the case for one bill in 2004-05 session
             # split using the last occurrence of "Act" in the title
             # this works for legislation with title "xyz Act 19/20ab" or "def Act 19/20gh ... Act 19/20ab"
             if "Act" in title_hl_removed and "Bill" not in title_hl_removed:
