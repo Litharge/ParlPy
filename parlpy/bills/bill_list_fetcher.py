@@ -115,7 +115,6 @@ class BillsOverview():
             elif "Bill" in title_hl_removed:
                 title_stripped = title_hl_removed.rsplit(" Bill", 1)[0]
                 postfix = "Bill"
-                print(f"bill postfix: {postfix}")
 
             # special case that only one bill conforms to
             elif "ACT" in title_hl_removed:
