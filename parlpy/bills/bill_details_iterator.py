@@ -3,22 +3,36 @@
 #   it shall call get_summary(path), get_votes(bill_name) for each item in the DataFrame
 import parlpy.bills.bill_list_fetcher as blf
 import parlpy.bills.summary_fetcher as sf
+import parlpy.utils.dates as session_dates
+
+import datetime
 
 def get_bill_details(overview: blf.BillsOverview):
     # construct
     for b in overview.bills_overview_data.itertuples():
-        # print(b)
+        print(b)
         # get the details path and use it to get summary for the bill
-        detail_path = b[3]
+        detail_path = b[4]
+        print(f"detail path {detail_path}")
         summary = sf.get_summary(detail_path)
 
         # todo get the bill name minus its "Bill" or "Act" suffix
+        title_stripped = b[1]
 
-        # todo get the earliest session start year for the bill (a bill may span multiple sessions)
+        # get the earliest session start year for the bill (a bill may span multiple sessions)
+        earliest_session = b[5][0]
+        earliest_start_date = datetime.date.fromisoformat(
+            session_dates.parliamentary_session_start_dates[earliest_session])
 
-        # todo get the latest session end year for the bill (a bill may span multiple sessions)
+        # get the latest session end year for the bill (a bill may span multiple sessions)
+        latest_session = b[5][-1]
+        latest_end_date = datetime.date.fromisoformat(
+            session_dates.parliamentary_session_end_dates[latest_session])
 
         # todo use the bill name and narrow results using the start and end years to get a divisions results object
+        print(f"bill name {title_stripped}")
+        print(f"earliest {earliest_start_date.isoformat()}")
+        print(f"latest {latest_end_date.isoformat()}")
 
         # todo yield tuple of (summary, bill_division_results)
 
