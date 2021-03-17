@@ -2,7 +2,7 @@
 # https://publications.parliament.uk/pa/cm200607/csession/1/1.pdf
 #
 # for the purposes of filtering
-parliament_session_start_dates = {
+parliamentary_session_start_dates = {
     "2019-": "2019-12-09",
     "2019-19": "2019-10-14",
     "2017-19": "2017-06-21",
