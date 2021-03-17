@@ -16,7 +16,6 @@ def get_bill_details(overview: blf.BillsOverview):
         print(b)
         # get the details path and use it to get summary for the bill
         detail_path = b[4]
-        print(f"detail path {detail_path}")
         summary = sf.get_summary(detail_path)
 
         # get the bill name minus its "Bill" or "Act" suffix
