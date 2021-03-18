@@ -10,7 +10,7 @@ Written as part of University of Bath Integrated Project module.
 
 ## Install
 
-    pipenv install ParlPy==1.1.0
+    pipenv install ParlPy==1.1.0.1
 
 ## Intended Usage
 
@@ -108,7 +108,10 @@ Scrapes data from https://bills.parliament.uk
 
 # Versions
 
-# 1.1.0
+## 1.1.0.1
+* make scraper session keys match those in utils.dates
+
+## 1.1.0
 * add function to get parties and their corresponding ids
 
 ## 1.0.1
