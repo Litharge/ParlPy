@@ -10,8 +10,14 @@ class TestDetails(unittest.TestCase):
         test_fetcher.update_all_bills_in_session(session_name="2004-05")
 
         for s in bdi.get_bill_details(test_fetcher):
-            summary, bill_divisions_list = s[0], s[1]
+            # summary, bill_divisions_list = s[0], s[1]
+            bill_title_stripped = s.title_stripped
+            bill_divisions_list = s.divisions_list
+            summary = s.summary
+
+            print(f"title stripped: {bill_title_stripped}")
             print(f"summary {summary}")
+
             for d in bill_divisions_list:
                 print(f"division name {d.division_name}")
                 print(f"division stage {d.division_stage}")
@@ -24,8 +30,14 @@ class TestDetails(unittest.TestCase):
         test_fetcher.update_all_bills_in_session(session_name="2015-16")
 
         for s in bdi.get_bill_details(test_fetcher):
-            summary, bill_divisions_list = s[0], s[1]
+            # summary, bill_divisions_list = s[0], s[1]
+            bill_title_stripped = s.title_stripped
+            bill_divisions_list = s.divisions_list
+            summary = s.summary
+
+            print(f"title stripped: {bill_title_stripped}")
             print(f"summary {summary}")
+
             for d in bill_divisions_list:
                 print(f"division name {d.division_name}")
                 print(f"division stage {d.division_stage}")
@@ -38,8 +50,14 @@ class TestDetails(unittest.TestCase):
         test_fetcher.update_all_bills_in_session(session_name="2019-21")
 
         for s in bdi.get_bill_details(test_fetcher):
-            summary, bill_divisions_list = s[0], s[1]
+            # summary, bill_divisions_list = s[0], s[1]
+            bill_title_stripped = s.title_stripped
+            bill_divisions_list = s.divisions_list
+            summary = s.summary
+
+            print(f"title stripped: {bill_title_stripped}")
             print(f"summary {summary}")
+
             for d in bill_divisions_list:
                 print(f"division name {d.division_name}")
                 print(f"division stage {d.division_stage}")
