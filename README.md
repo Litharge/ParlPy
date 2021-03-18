@@ -39,7 +39,7 @@ The BillsOverview object is then passed to todo: iterator
             print(f"ayes {d.ayes}")
             print(f"noes {d.noes}")
     
-    ...
+    # ...
     # repeat
 
 The above gets summary and a list of DivisionDetail objects for each bill. BillsOverview has persistence, storing the
