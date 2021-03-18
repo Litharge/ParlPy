@@ -10,7 +10,7 @@ Written as part of University of Bath Integrated Project module.
 
 ## Install
 
-    pipenv install ParlPy==0.1.0
+    pipenv install ParlPy==1.1.0
 
 ## Intended Usage
 
@@ -107,6 +107,15 @@ Scrapes data from https://bills.parliament.uk
 ---
 
 # Versions
+
+# 1.1.0
+* add function to get parties and their corresponding ids
+
+## 1.0.1
+* improve accuracy of associating divisions with bills
+
+## 1.0.0
+* add iterator functionality to get details on bills provided by a BillsOverview object
 
 ## 0.1.0
 * adds method to get a list only of bills updated since method was last run, uses pickled datetime so that script can
