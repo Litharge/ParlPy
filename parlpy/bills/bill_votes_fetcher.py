@@ -57,14 +57,18 @@ def fetch_division_values(division_id):
 # second/third reading /: indicates the division is not the second or third reading, but is on amendments relating
 # todo: better checking of title to determine what stage the division is for
 def determine_division_stage(division_title):
-    # todo: check "amendment" not in title
+    # even though "<nth> reading" may be in title, it may be referring to amendments
     if "second reading" in division_title.lower() \
             and "second reading:" not in division_title.lower() \
-            and "second reading " not in division_title.lower():
+            and "second reading " not in division_title.lower() \
+            and "amendment" not in division_title.lower() \
+            and "amdt" not in division_title.lower():
         division_stage = "Second Reading"
     elif "third reading" in division_title.lower() \
             and "third reading:" not in division_title.lower() \
-            and "third reading " not in division_title.lower():
+            and "third reading " not in division_title.lower() \
+            and "amendment" not in division_title.lower() \
+            and "amdt" not in division_title.lower():
         division_stage = "Third Reading"
     else:
         division_stage = "Amendments"
