@@ -2,7 +2,7 @@ import requests
 import json
 
 class PartyInformation():
-    def __init__(self, party_name, party_id):
+    def __init__(self, party_name: str, party_id: int):
         self.party_name = party_name
         self.party_id = party_id
 
