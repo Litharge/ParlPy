@@ -54,6 +54,23 @@ def fetch_division_values(division_id):
 
     return response
 
+# second/third reading /: indicates the division is not the second or third reading, but is on amendments relating
+# todo: better checking of title to determine what stage the division is for
+def determine_division_stage(division_title):
+    if "second reading" in division_title.lower() \
+            and "second reading:" not in division_title.lower() \
+            and "second reading " not in division_title.lower():
+        division_stage = "Second Reading"
+    elif "third reading" in division_title.lower() \
+            and "third reading:" not in division_title.lower() \
+            and "third reading " not in division_title.lower():
+        division_stage = "Third Reading"
+    else:
+        division_stage = "Amendments"
+
+    return division_stage
+
+# build and return a DivisionInformation object with title, stage, ayes list and noes list
 def get_division_values(division_id):
     response = fetch_division_values(division_id)
     specific_division_obj = json.loads(response.text)
@@ -66,13 +83,7 @@ def get_division_values(division_id):
     noes_data = specific_division_obj["Noes"]
     noes_ids = [n["MemberId"] for n in noes_data]
 
-    # todo: better checking of title to determine what stage the division is for
-    if "second reading" in division_title.lower():
-        division_stage = "Second Reading"
-    elif "third reading" in division_title.lower():
-        division_stage = "Third Reading"
-    else:
-        division_stage = "Amendments"
+    division_stage = determine_division_stage(division_title)
 
     division_values = DivisionInformation(division_title, division_stage, ayes_ids, noes_ids)
 
@@ -81,12 +92,28 @@ def get_division_values(division_id):
 class DivisionInformation():
     def __init__(self, division_name="", division_stage="", ayes=[], noes=[]):
         self.division_name = division_name
-        # maybe be "Second Reading", "Third Reading", "Amendments"
+        # may be "Second Reading", "Third Reading", "Amendments"
         self.division_stage = division_stage
         # list of MP ids for the ayes
         self.ayes = ayes
         # list of MP ids for the noes
         self.noes = noes
+
+# checks that a division is on a bill and not some other matter
+# results for eg "finance" also returns results for divisions with "finances"
+def check_division_is_on_bill(bill_title_stripped, division_name):
+    bill_title_stripped_words = bill_title_stripped.split(' ')
+
+    # check the division is on a bill and not some other matter
+    if ("Bill") not in division_name:
+        return False
+
+    # check the division title contains all words in bill title
+    for w in bill_title_stripped_words:
+        if (w + ' ') not in division_name:
+            return False
+
+    return True
 
 # return a list of DivisionInformation objects
 def get_divisions_information(bill_title_stripped: str,
@@ -105,6 +132,11 @@ def get_divisions_information(bill_title_stripped: str,
 
     for id in division_ids:
         division_information = get_division_values(id)
-        division_information_list.append(division_information)
+
+        # only add if all words in bill_title_stripped appear in division name
+
+        # only add if division is on a bill
+        if check_division_is_on_bill(bill_title_stripped, division_information.division_name):
+            division_information_list.append(division_information)
 
     return division_information_list
