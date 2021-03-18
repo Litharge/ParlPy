@@ -36,7 +36,7 @@ class BillsOverview():
 
         self.__bills_overview_session = {
             "All": "0",
-            "2019-21": "35",
+            "2019-": "35",
             "2019-19": "34", # a jump here for unknown reason
             "2017-19": "30",
             "2016-17": "29",
