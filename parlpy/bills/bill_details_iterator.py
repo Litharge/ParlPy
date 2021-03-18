@@ -26,10 +26,13 @@ def get_bill_details(overview: blf.BillsOverview):
         earliest_start_date = datetime.date.fromisoformat(
             session_dates.parliamentary_session_start_dates[earliest_session])
 
-        # get the latest session end year for the bill (a bill may span multiple sessions)
+        # get the latest session end year for the bill (a bill may span multiple sessions), None if in current session
         latest_session = b[5][-1]
-        latest_end_date = datetime.date.fromisoformat(
+        try:
+            latest_end_date = datetime.date.fromisoformat(
             session_dates.parliamentary_session_end_dates[latest_session])
+        except:
+            latest_end_date = None
 
         # use the bill name and narrow results using the start and end years to get a list of divisions results object
         divisions_data_list = bvf.get_divisions_information(title_stripped, earliest_start_date, latest_end_date)

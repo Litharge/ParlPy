@@ -57,6 +57,7 @@ def fetch_division_values(division_id):
 # second/third reading /: indicates the division is not the second or third reading, but is on amendments relating
 # todo: better checking of title to determine what stage the division is for
 def determine_division_stage(division_title):
+    # todo: check "amendment" not in title
     if "second reading" in division_title.lower() \
             and "second reading:" not in division_title.lower() \
             and "second reading " not in division_title.lower():
@@ -121,9 +122,12 @@ def get_divisions_information(bill_title_stripped: str,
         end_datetime: datetime.date = None,
         skip_old_bills = True):
     # we know that the earliest division is 2016-3-9
-    lower_limit_date = datetime.date(2016,3,9)
-    delta = end_datetime - lower_limit_date
-    if skip_old_bills and delta.total_seconds() < 0:
+    delta = None
+    if end_datetime is not None:
+        lower_limit_date = datetime.date(2016,3,9)
+        delta = end_datetime - lower_limit_date
+
+    if skip_old_bills and delta is not None and delta.total_seconds() < 0:
         return []
 
     division_ids = get_division_ids(bill_title_stripped, start_datetime, end_datetime)

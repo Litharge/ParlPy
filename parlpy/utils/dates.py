@@ -3,7 +3,7 @@
 #
 # for the purposes of filtering
 parliamentary_session_start_dates = {
-    "2019-": "2019-12-09",
+    "2019-21": "2019-12-09",
     "2019-19": "2019-10-14",
     "2017-19": "2017-06-21",
     "2016-17": "2016-05-18",
@@ -22,7 +22,7 @@ parliamentary_session_start_dates = {
 }
 
 parliamentary_session_end_dates = {
-    "2019-": None,
+    "2019-21": None,
     "2019-19": "2019-11-06",
     "2017-19": "2019-09-03",
     "2016-17": "2017-04-27",

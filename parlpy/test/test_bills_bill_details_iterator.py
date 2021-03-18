@@ -18,9 +18,24 @@ class TestDetails(unittest.TestCase):
                 print(f"ayes {d.ayes}")
                 print(f"noes {d.noes}")
 
+    # longer test - may want to run specific tests
     def test_iterator_on_2015_16(self):
         test_fetcher = blf.BillsOverview()
         test_fetcher.update_all_bills_in_session(session_name="2015-16")
+
+        for s in bdi.get_bill_details(test_fetcher):
+            summary, bill_divisions_list = s[0], s[1]
+            print(f"summary {summary}")
+            for d in bill_divisions_list:
+                print(f"division name {d.division_name}")
+                print(f"division stage {d.division_stage}")
+                print(f"ayes {d.ayes}")
+                print(f"noes {d.noes}")
+
+    # longer test - may want to run specific tests
+    def test_iterator_on_2019_21(self):
+        test_fetcher = blf.BillsOverview()
+        test_fetcher.update_all_bills_in_session(session_name="2019-21")
 
         for s in bdi.get_bill_details(test_fetcher):
             summary, bill_divisions_list = s[0], s[1]
