@@ -7,12 +7,27 @@ import parlpy.utils.dates as session_dates
 import parlpy.bills.bill_votes_fetcher as bvf
 
 import datetime
-
 import json
+from typing import List
 
+# class with member variables to hold information on a single bill/act
+class BillDetails():
+    def __init__(self,
+                 title_stripped: str,
+                 title_postfix: str,
+                 summary: str,
+                 divisions_list: List[bvf.DivisionInformation]):
+        self.title_stripped = title_stripped
+        self.title_postfix = title_postfix
+        self.summary = summary
+        self.divisions_list = divisions_list
+
+
+# return a list of BillDetails objects
 def get_bill_details(overview: blf.BillsOverview):
     # construct
     for b in overview.bills_overview_data.itertuples():
+
         print(b)
         # get the details path and use it to get summary for the bill
         detail_path = b[4]
@@ -37,4 +52,8 @@ def get_bill_details(overview: blf.BillsOverview):
         # use the bill name and narrow results using the start and end years to get a list of divisions results object
         divisions_data_list = bvf.get_divisions_information(title_stripped, earliest_start_date, latest_end_date)
 
-        yield summary, divisions_data_list
+        title_postfix = b[2]
+
+        bill_details = BillDetails(title_stripped, title_postfix, summary, divisions_data_list)
+
+        yield bill_details
