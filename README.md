@@ -22,26 +22,29 @@ was last run in the DataFrame.
 
 The BillsOverview object is then passed to todo: iterator
 
-## Example Usage
-
-To fetch bills updated since our scraper was last called (uses pickled variable for persistence between program runs)
-
-    from parlpy.bills.bill_list_fetcher import BillsOverview
-
-    test_fetcher = BillsOverview()
-    test_fetcher.get_changed_bills_in_session(session_name="All")
-    print(test_fetcher.bills_overview_data)
-
-... script can stop and be rerun later, next time bills_overview_data will contain fewer items, unless 
-reset_datetime_last_scraped() has been called first, which deletes the pickle file
-
-To fetch all bills and print them:
-
-    from parlpy.bills.bill_list_fetcher import BillsOverview
+## Intended Example Usage
     
-    test_fetcher2 = BillsOverview()
-    test_fetcher2.update_all_bills_in_session()
-    print(test_fetcher2.bills_overview_data)
+    import parlpy.bills.bill_list_fetcher as blf
+    import parlpy.bills.bill_details_iterator as bdi
+
+    test_fetcher = blf.BillsOverview()
+    test_fetcher.get_changed_bills_in_session()
+
+    for s in bdi.get_bill_details(test_fetcher):
+        summary, bill_divisions_list = s[0], s[1]
+        print(f"summary {summary}")
+        for d in bill_divisions_list:
+            print(f"division name {d.division_name}")
+            print(f"division stage {d.division_stage}")
+            print(f"ayes {d.ayes}")
+            print(f"noes {d.noes}")
+    
+    ...
+    # repeat
+
+The above gets summary and a list of DivisionDetail objects for each bill. BillsOverview has persistence, storing the
+last time `get_changed_bills_in_session` was called using a pickle variable. So eg the script can be run, the values
+stored in a DB, then run again later to get info on bills that the parliamentary website says have updated.
 
 ---
 
