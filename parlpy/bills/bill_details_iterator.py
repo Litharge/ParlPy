@@ -48,7 +48,7 @@ def get_bill_details(overview: blf.BillsOverview) -> Iterable[BillDetails]:
         try:
             latest_end_date = datetime.date.fromisoformat(
                 session_dates.parliamentary_session_end_dates[latest_session])
-        except:
+        except TypeError:
             latest_end_date = None
 
         # use the bill name and narrow results using the start and end years to get a list of divisions results object
