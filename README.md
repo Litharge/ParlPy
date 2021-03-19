@@ -10,7 +10,7 @@ Written as part of University of Bath Integrated Project module.
 
 ## Install
 
-    pipenv install ParlPy===2.0.0.1
+    pipenv install ParlPy===2.1.0
 
 ## Intended Usage
 
@@ -126,6 +126,9 @@ Scrapes data from https://bills.parliament.uk
 ---
 
 # Versions
+
+## 2.1.0
+* iterator return object now includes url and last updated datetime
 
 ## 2.0.0
 * iterator now returns list of BillDetails objects rather than tuple (API incompat change, hence change of major)
