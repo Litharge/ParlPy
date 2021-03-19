@@ -8,6 +8,8 @@ def print_all_info_using_iterator(fetcher):
         print(f"title stripped: {s.title_stripped}")
         print(f"title postfix: {s.title_postfix}")
         print(f"sessions: {s.sessions}")
+        print(f"url: {s.url}")
+        print(f"last updated: {s.last_updated}")
         print(f"summary {s.summary}")
 
         for d in s.divisions_list:
