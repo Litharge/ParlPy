@@ -8,31 +8,34 @@ import parlpy.bills.bill_votes_fetcher as bvf
 
 import datetime
 import json
-from typing import List, Iterable
+from typing import List, Iterable, NamedTuple
+
+import pandas as pd
 
 
 # class with member variables to hold information on a single bill/act
 class BillDetails():
     def __init__(self,
-                 title_stripped: str,
-                 title_postfix: str,
-                 sessions: List[str],
-                 url: str,
-                 last_updated: datetime.datetime,
+                 b: pd.DataFrame,
                  summary: str,
                  divisions_list: List[bvf.DivisionInformation],
     ):
-        self.title_stripped = title_stripped
-        self.title_postfix = title_postfix
-        self.sessions = sessions
+        base_url = "https://bills.parliament.uk"
+
+        self.title_stripped = b.bill_title_stripped
+        self.title_postfix = b.postfix
+        self.sessions = b.session
+        self.url = base_url + b.bill_detail_path
+        self.last_updated = b.last_updated
         self.summary = summary
         self.divisions_list = divisions_list
-        self.url = url
-        self.last_updated = last_updated
 
 
 # get the earliest and latest dates that the bill may have had divisions, latest is None if the session is ongoing
-def get_start_and_end_dates(earliest_session: str, latest_session: str):
+def get_start_and_end_dates(b):
+    earliest_session = b.session[0]
+    latest_session = b.session[-1]
+
     earliest_start_date = datetime.date.fromisoformat(
         session_dates.parliamentary_session_start_dates[earliest_session])
 
@@ -45,34 +48,21 @@ def get_start_and_end_dates(earliest_session: str, latest_session: str):
     return earliest_start_date, latest_end_date
 
 
-# return a list of BillDetails objects
-def get_bill_details(overview: blf.BillsOverview) -> Iterable[BillDetails]:
-    # construct
+# yield a BillDetails object
+def get_bill_details(overview: blf.BillsOverview, debug=False) -> Iterable[BillDetails]:
     for b in overview.bills_overview_data.itertuples():
-        print("item")
-        print(b)
+        if debug:
+            print(b)
 
-        # get the bill name minus its "Bill" or "Act" suffix
+        # use the bill name and narrow results using the start and end dates to get a list of divisions results object
         title_stripped = b.bill_title_stripped
-
-        # get the start and end dates using the earliest and latest sessions
-        earliest_session = b.session[0]
-        latest_session = b.session[-1]
-        earliest_start_date, latest_end_date = get_start_and_end_dates(earliest_session, latest_session)
-
-        # use the bill name and narrow results using the start and end years to get a list of divisions results object
+        earliest_start_date, latest_end_date = get_start_and_end_dates(b)
         divisions_data_list = bvf.get_divisions_information(title_stripped, earliest_start_date, latest_end_date)
 
         # get the details path and use it to get summary for the bill
         detail_path = b.bill_detail_path
         summary = sf.get_summary(detail_path)
 
-        # get other information we want to store
-        title_postfix = b.postfix
-        sessions = b.session
-        url = "https://bills.parliament.uk" + detail_path
-        last_updated = b.last_updated
-
-        bill_details = BillDetails(title_stripped, title_postfix, sessions, url, last_updated, summary, divisions_data_list)
+        bill_details = BillDetails(b, summary, divisions_data_list)
 
         yield bill_details
