@@ -22,7 +22,7 @@ class TestDetails(unittest.TestCase):
         fetcher_2004_05 = blf.BillsOverview()
         fetcher_2004_05.update_all_bills_in_session(session_name="2004-05")
 
-        print_all_info_using_iterator()
+        print_all_info_using_iterator(fetcher_2004_05)
 
 
     # longer test - may want to run specific tests
