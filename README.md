@@ -128,6 +128,7 @@ Scrapes data from https://bills.parliament.uk
 
 ## 2.0.0
 * iterator now returns list of BillDetails objects rather than tuple (API incompat change, hence change of major)
+* iterator BillDetails object also now contains sessions for the bill
 * improve division categorisation "second reading" vs "third reading" vs "amendments"
 * make 2019 onwards session tag have consistent value of 2019-21 (session is actually ongoing at time of writing, but
   Parliament API for divisions uses 2019-21 as the value)
