@@ -10,7 +10,7 @@ Written as part of University of Bath Integrated Project module.
 
 ## Install
 
-    pipenv install ParlPy==1.1.0.1
+    pipenv install ParlPy===2.0.0
 
 ## Intended Usage
 
@@ -20,7 +20,8 @@ simply gets a list of all bills and places them in member DataFrame `bills_overv
 so that its first run behaves like `update_all_bills_in_session`, but after this places only bills updated after it 
 was last run in the DataFrame.
 
-The BillsOverview object is then passed to todo: iterator
+The BillsOverview object is then passed to iterator parlpy.bills.bill_details_iterator.get_bill_details(), which yields
+an object containing information on the bill, including divisions data
 
 ## Intended Example Usage
     
@@ -50,28 +51,45 @@ stored in a DB, then run again later to get info on bills that the parliamentary
 
 # Subpackages
 
-## parlpy.bills 
-parlpy.bills for fetching bill data
+## parlpy.bills.bill_details_iterator 
+parlpy.bills.bill_details_iterator for fetching bill data
 
+### get_bill_details(overview: parlpy.bills.bill_list_fetcher.BillsOverview) -> Iterable[BillDetails]
 
-### Class: BillsOverview
+Iterator that yields BillDetails object
+
+### BillDetails
+
+Instance variables
+* self.title_stripped: str
+* self.title_postfix: str 
+* self.sessions: List[str]
+* self.summary: str
+* self.divisions_list: List[parlpy.bills.bill_votes_fetcher.DivisionInformation]
+
+## parlpy.bills.bill_list_fetcher
+
+### BillsOverview
+
+Not intended for public API use, BillsOverview object is instead passed to 
+parlpy.bills.bill_details_iterator.get_bill_details()
 
 Constructs an object for collecting basic information on all bills in the current Parliamentary session. Its purpose is
 to
 * get a list of existing bills - so that we know what to scrape
 * get path to further details for each bill - so that we can assemble the url to scrape further info from
+* be passed to parlpy.bills.bill_details_iterator.get_bill_details()
 
-
-Public instance variables:
-* DataFrame : bills_overview_data 
+Instance variables:
+* self.bills_overview_data -> pd.DataFrame 
   
     DF containing bill titles, their last updated time and the path to further
-details on the bill
+details on the bill. Determines which bills parlpy.bills.bill_details_iterator.get_bill_details() collects data on
   
 Public instance methods:
-* None : get_changed_bills_in_session(session_name="2019-21", fetch_delay=0)
-* None : reset_datetime_last_scraped()
-* None : update_all_bills_in_session(session_name="2019-21", fetch_delay=0)
+* get_changed_bills_in_session(session_name="2019-21", fetch_delay=0) -> None
+* reset_datetime_last_scraped() -> None
+* update_all_bills_in_session(session_name="2019-21", fetch_delay=0) -> None
 
     Method to called to update self.bills_overview_data, fetching pages at maximum rate when fetch_delay=0
 
@@ -108,6 +126,12 @@ Scrapes data from https://bills.parliament.uk
 
 # Versions
 
+## 2.0.0
+* iterator now returns list of BillDetails objects rather than tuple (API incompat change, hence change of major)
+* improve division categorisation "second reading" vs "third reading" vs "amendments"
+* make 2019 onwards session tag have consistent value of 2019-21 (session is actually ongoing at time of writing, but
+  Parliament API for divisions uses 2019-21 as the value)
+  
 ## 1.1.0.1
 * make scraper session keys match those in utils.dates
 
