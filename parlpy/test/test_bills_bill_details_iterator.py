@@ -13,10 +13,10 @@ def print_all_info_using_iterator(fetcher):
         print(f"summary {s.summary}")
 
         for d in s.divisions_list:
-            print(f"division name {d.division_name}")
-            print(f"division stage {d.division_stage}")
-            print(f"ayes {d.ayes}")
-            print(f"noes {d.noes}")
+            print(f"division name: {d.division_name}")
+            print(f"division stage: {d.division_stage}")
+            print(f"ayes: {d.ayes}")
+            print(f"noes: {d.noes}")
 
 class TestDetails(unittest.TestCase):
     # a much shorter test, but does not test divisions capabilities
