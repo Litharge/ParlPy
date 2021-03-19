@@ -32,22 +32,22 @@ def get_bill_details(overview: blf.BillsOverview) -> Iterable[BillDetails]:
         print("item")
         print(b)
         # get the details path and use it to get summary for the bill
-        detail_path = b[4]
+        detail_path = b.bill_detail_path
         summary = sf.get_summary(detail_path)
 
         # get the bill name minus its "Bill" or "Act" suffix
-        title_stripped = b[1]
+        title_stripped = b.bill_title_stripped
 
         # get the earliest session start year for the bill (a bill may span multiple sessions)
-        earliest_session = b[5][0]
+        earliest_session = b.session[0]
         earliest_start_date = datetime.date.fromisoformat(
             session_dates.parliamentary_session_start_dates[earliest_session])
 
         # get the latest session end year for the bill (a bill may span multiple sessions), None if in current session
-        latest_session = b[5][-1]
+        latest_session = b.session[-1]
         try:
             latest_end_date = datetime.date.fromisoformat(
-            session_dates.parliamentary_session_end_dates[latest_session])
+                session_dates.parliamentary_session_end_dates[latest_session])
         except:
             latest_end_date = None
 
@@ -55,8 +55,8 @@ def get_bill_details(overview: blf.BillsOverview) -> Iterable[BillDetails]:
         divisions_data_list = bvf.get_divisions_information(title_stripped, earliest_start_date, latest_end_date)
 
         # get other information we want to store
-        title_postfix = b[2]
-        sessions = b[5]
+        title_postfix = b.postfix
+        sessions = b.session
 
         bill_details = BillDetails(title_stripped, title_postfix, sessions, summary, divisions_data_list)
 
