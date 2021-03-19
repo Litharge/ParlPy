@@ -26,7 +26,7 @@ class BillDetails():
 
 
 # return a list of BillDetails objects
-def get_bill_details(overview: blf.BillsOverview) -> Iterable(BillDetails):
+def get_bill_details(overview: blf.BillsOverview) -> Iterable[BillDetails]:
     # construct
     for b in overview.bills_overview_data.itertuples():
         print("item")
