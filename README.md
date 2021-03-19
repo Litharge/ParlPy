@@ -41,7 +41,8 @@ an object containing information on the bill, including divisions data
             print(f"noes {d.noes}")
     
     # ...
-    # repeat
+    # repeat, call get_changed_bills_in_session() again (on the same object or new, the pickle works either way), then
+    # pass the object to the iterator to get new results
 
 The above gets summary and a list of DivisionDetail objects for each bill. BillsOverview has persistence, storing the
 last time `get_changed_bills_in_session` was called using a pickle variable. So eg the script can be run, the values
