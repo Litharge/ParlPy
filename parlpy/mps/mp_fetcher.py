@@ -43,6 +43,8 @@ class MPOverview:
             "name_address_as",
             # Name to list member by
             "name_list_as",
+            # email for MP
+            "email",
             # Member ID (for further information)
             "member_id",
             # Gender
@@ -56,7 +58,22 @@ class MPOverview:
         ]
         self.mp_overview_data = pd.DataFrame([], columns=self.columns)
 
-    def __add_member_to_data_from_api_response(self, response: requests.Response) -> None:
+
+    def __get_email(self, mp_id):
+        contact_details_endpoint = f"https://members-api.parliament.uk/api/Members/{mp_id}/Contact"
+        response = requests.get(contact_details_endpoint)
+
+        # get the MP's parliamentary email
+        email_address = "none_given"
+        for contact in response.json()["value"]:
+            if contact["type"] == "Parliamentary":
+                if "email" in contact.keys():
+                    email_address = contact["email"]
+
+        return email_address
+
+
+    def __add_member_to_data_from_api_response(self, response: requests.Response, only_get_current_members_emails=True) -> None:
         """
         Adds members from a response to the data
         :param response: Response to add
@@ -68,11 +85,18 @@ class MPOverview:
             if value_obj["latestHouseMembership"]["membershipEndReason"] == "Death":
                 continue
 
+            # only if a current member get their email
+            if value_obj["latestHouseMembership"]["membershipStatus"] is not None:
+                email = self.__get_email(value_obj["id"])
+            else:
+                email = "not_current_member"
+
             values = {
                 "name_display": value_obj["nameDisplayAs"],
                 "name_full_title": value_obj["nameFullTitle"],
                 "name_address_as": value_obj["nameAddressAs"],
                 "name_list_as": value_obj["nameListAs"],
+                "email": email,
                 "member_id": value_obj["id"],
                 "gender": value_obj["gender"],
                 "party_id": value_obj["latestParty"]["id"],
