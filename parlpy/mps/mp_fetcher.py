@@ -49,6 +49,8 @@ class MPOverview:
             "gender",
             # Party that the member belongs to
             "party_id",
+            # Constituency of member
+            "constituency",
             # Time this information was retrieved
             "last_updated"
         ]
@@ -74,6 +76,7 @@ class MPOverview:
                 "member_id": value_obj["id"],
                 "gender": value_obj["gender"],
                 "party_id": value_obj["latestParty"]["id"],
+                "constituency": value_obj["latestHouseMembership"]["membershipFrom"],
                 "last_updated": datetime.datetime.now(),
             }
 
