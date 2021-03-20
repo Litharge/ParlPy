@@ -161,3 +161,11 @@ Scrapes data from https://bills.parliament.uk
 * gets a DataFrame containing bill titles, their last updated times and page paths (page paths to be used in
   future versions)
 * page request delay configurable
+
+---
+
+# Misc Performance Notes
+* collecting emails using the Parliament API significantly increases the time to run mp_fetcher methods, so by default 
+  only gets emails for current MPs.
+    * 33 seconds to run `test_get_active_mps` without email data
+    * 272 seconds to run `test_get_active_mps` with email data
