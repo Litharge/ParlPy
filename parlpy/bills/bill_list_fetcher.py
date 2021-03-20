@@ -116,18 +116,25 @@ class BillsOverview():
                 title_stripped = title_hl_removed.rsplit(" Bill", 1)[0]
                 postfix = "Bill"
 
-            # special case that only one bill conforms to
+            # special case for all caps
             elif "ACT" in title_hl_removed:
                 title_stripped = title_hl_removed.rsplit(" ACT", 1)[0]
                 # get the "Act 20/19ab" part
                 postfix = title_hl_removed.split(title_stripped, 1)[1]
                 postfix = postfix[1:]
 
-            titles_stripped.append(title_stripped)
-            postfixes.append(postfix)
+            # special case for all caps
+            elif "BILL" in title_hl_removed:
+                title_stripped = title_hl_removed.rsplit(" BILL", 1)[0]
+                postfix = "BILL"
 
-        if self.debug:
-            print("title list for page {}".format(titles_stripped_and_postfix))
+            else:
+                title_stripped = None
+                postfix = None
+
+            if title_stripped is not None:
+                titles_stripped.append(title_stripped)
+                postfixes.append(postfix)
 
         return titles_stripped, postfixes
 
