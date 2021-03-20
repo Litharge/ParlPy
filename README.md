@@ -132,6 +132,7 @@ Scrapes data from https://bills.parliament.uk
 
 ## 2.1.0
 * iterator return object now includes url and last updated datetime
+* add functionality to get constituency from postcode
 
 ## 2.0.0
 * iterator now returns list of BillDetails objects rather than tuple (API incompat change, hence change of major)
