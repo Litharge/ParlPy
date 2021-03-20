@@ -10,7 +10,7 @@ Written as part of University of Bath Integrated Project module.
 
 ## Install
 
-    pipenv install ParlPy===2.2.0
+    pipenv install ParlPy===2.3.0
 
 ## Intended Usage
 
@@ -126,6 +126,9 @@ Scrapes data from https://bills.parliament.uk
 ---
 
 # Versions
+
+## 2.3.0
+* mp data includes if they are current and their email
 
 ## 2.2.0
 * mp data includes constituency
