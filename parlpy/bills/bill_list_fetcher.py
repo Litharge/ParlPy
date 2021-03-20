@@ -295,7 +295,6 @@ class BillsOverview():
         self.last_updated = datetime.datetime.now()
         print(self.last_updated)
 
-
     # method to update self.bills_overview_data dataframe with overview information about bills from given session, or
     # all sessions
     # currently gets titles, updated dates, further information paths
@@ -351,8 +350,14 @@ class BillsOverview():
 
         self.__update_bills_overview_with_updated_bills_only_up_to_page(session_code, max_page, fetch_delay)
 
+
     def reset_datetime_last_scraped(self):
         if os.path.exists("datetime_last_scraped.p"):
             os.remove("datetime_last_scraped.p")
         else:
             print("datetime last scraped not recorded")
+
+
+    def mock_datetime_last_scraped(self, mock_datetime: datetime.datetime):
+        with open("datetime_last_scraped.p", "wb") as f:
+            pickle.dump(mock_datetime, f)
