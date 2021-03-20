@@ -162,9 +162,8 @@ class MPOverview:
         if params is None:
             params = {}
 
-        # todo Actual name for this?
-        ext = "Members/Search"
+        path = "Members/Search"
 
-        response = requests.get(self.api_url + ext, params=params)
+        response = requests.get(self.api_url + path, params=params)
 
         return response
