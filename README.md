@@ -10,7 +10,7 @@ Written as part of University of Bath Integrated Project module.
 
 ## Install
 
-    pipenv install ParlPy===2.3.0
+    pipenv install ParlPy===2.4.0
 
 ## Intended Usage
 
@@ -126,6 +126,10 @@ Scrapes data from https://bills.parliament.uk
 ---
 
 # Versions
+
+## 2.4.0
+* include method in BillsOverview to mock a datetime last scraped pickle
+* fix: bills/act titles not conforming to standard layout breaking the bill list fetcher, they are now not added
 
 ## 2.3.0
 * mp data includes if they are current and their email
