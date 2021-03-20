@@ -47,6 +47,8 @@ class MPOverview:
             "email",
             # Member ID (for further information)
             "member_id",
+            # whether the MP is a current member
+            "current_member",
             # Gender
             "gender",
             # Party that the member belongs to
@@ -73,7 +75,7 @@ class MPOverview:
         return email_address
 
 
-    def __add_member_to_data_from_api_response(self, response: requests.Response, only_get_current_members_emails=True) -> None:
+    def __add_member_to_data_from_api_response(self, response: requests.Response, only_get_current_members_emails: bool) -> None:
         """
         Adds members from a response to the data
         :param response: Response to add
@@ -85,8 +87,13 @@ class MPOverview:
             if value_obj["latestHouseMembership"]["membershipEndReason"] == "Death":
                 continue
 
-            # only if a current member get their email
             if value_obj["latestHouseMembership"]["membershipStatus"] is not None:
+                current_member = True
+            else:
+                current_member = False
+
+            # if only_get_current_members_emails is false, always get the MP's/former MP's email
+            if current_member or only_get_current_members_emails == False:
                 email = self.__get_email(value_obj["id"])
             else:
                 email = "not_current_member"
@@ -98,6 +105,7 @@ class MPOverview:
                 "name_list_as": value_obj["nameListAs"],
                 "email": email,
                 "member_id": value_obj["id"],
+                "current_member": current_member,
                 "gender": value_obj["gender"],
                 "party_id": value_obj["latestParty"]["id"],
                 "constituency": value_obj["latestHouseMembership"]["membershipFrom"],
@@ -106,12 +114,18 @@ class MPOverview:
 
             self.mp_overview_data = self.mp_overview_data.append(values, ignore_index=True)
 
-    def get_all_members(self, params: dict, fetch_delay: int = 0, limit: int = None, verbose: bool = False) -> None:
+    def get_all_members(self,
+                        params: dict,
+                        fetch_delay: int = 0,
+                        limit: int = None,
+                        only_get_current_members_emails: bool = True,
+                        verbose: bool = False) -> None:
         """
         Get all members that fit the criteria stated in params and save in self.mp_overview_data
         :param params: dictionary of parameters to pass
         :param fetch_delay: Time (seconds) between fetching each 'page'
         :param limit: Limit of number of members to retrieve.
+        :param only_get_current_members_emails: default true if we only want emails for current members (recommended)
         :param verbose: Enable verbose mode
         """
         take = self.max_take
@@ -132,7 +146,7 @@ class MPOverview:
 
             count += n_items
             # Save response to dataframe
-            self.__add_member_to_data_from_api_response(response)
+            self.__add_member_to_data_from_api_response(response, only_get_current_members_emails)
 
             # Calculate next skip
             skip += take
