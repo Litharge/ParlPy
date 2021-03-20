@@ -17,6 +17,7 @@ class TestMP(unittest.TestCase):
         current_mp_fetcher = MPOverview()
         current_mp_fetcher.get_active_MPs()
 
+        pd.set_option('display.max_columns', 20)
         print(current_mp_fetcher.mp_overview_data)
 
         # since 1950 number of active MPs varies between 640-659
@@ -29,6 +30,7 @@ class TestMP(unittest.TestCase):
         all_living_mps_fetcher = MPOverview()
         all_living_mps_fetcher.get_all_members(params={"House": "Commons"})
 
+        pd.set_option('display.max_columns', 20)
         print(all_living_mps_fetcher.mp_overview_data)
 
 if __name__ == "__main__":
