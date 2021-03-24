@@ -8,6 +8,7 @@ numpy = "*"
 beautifulsoup4 = "*"
 pandas = "*"
 ParlPy = "*"
+gcsfs = "*"
 
 [dev-packages]
 
