@@ -32,7 +32,6 @@ class BillsOverview():
         self.debug = debug
 
         self.bills_overview_data = pd.DataFrame([], columns=["bill_title_stripped", "postfix", "last_updated", "bill_detail_path", "session"])
-        self.last_updated = None
 
         # record number of pages
         self.pages_updated_this_update = 0
@@ -310,8 +309,6 @@ class BillsOverview():
             self.__add_page_data_to_bills_overview_data(titles_stripped, postfixes, updated_dates, bill_data_paths,
                                                         bill_sessions, check_last_updated=False)
 
-        self.last_updated = datetime.datetime.now()
-        print(self.last_updated)
 
     # method to update self.bills_overview_data dataframe with overview information about bills from given session, or
     # all sessions
@@ -358,7 +355,6 @@ class BillsOverview():
         else:
             with open("datetime_last_scraped.p", "wb") as f:
                 pickle.dump(to_store_datetime_last_scraped, f)
-        print(self.last_updated)
 
     # this method uses a pickled variable (so that ths package can be run periodically)
     # puts into self.bills_overview_data, bills which have been updated since the method was last called
