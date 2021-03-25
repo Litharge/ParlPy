@@ -1,8 +1,7 @@
 """
 Contains class that specifies how basic data on bills is collected and represented
 
-Classes:
-
+Classes (public):
     BillsOverview
 """
 from urllib.request import urlopen
@@ -37,7 +36,8 @@ class BillsOverview():
         determines what type of pickle to use, if true the gcsfs
     project_name : str
         what google cloud project name to use
-    debug : whether to print debug info
+    debug : bool
+        whether to print debug info
 
     Methods (public)
     ----------
