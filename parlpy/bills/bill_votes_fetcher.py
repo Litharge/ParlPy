@@ -123,7 +123,7 @@ def check_division_is_on_bill(bill_title_stripped, division_name):
     bill_title_stripped_words = bill_title_stripped.split(' ')
 
     # check the division is on a bill and not some other matter
-    if ("Bill") not in division_name:
+    if "Bill" not in division_name:
         return False
 
     # check the division title contains all words in bill title
