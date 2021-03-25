@@ -123,6 +123,7 @@ class BillsOverview():
 
         return max_page
 
+
     def __get_title_stripped_and_postfix_list_from_card_tags(self, card_tags):
         # list containing 2-tuples of form
         # if title is "xyz Bill" then the first element of tuple is "xyz" and second element of tuple is "Bill"
@@ -173,6 +174,7 @@ class BillsOverview():
 
         return titles_stripped, postfixes
 
+
     def __get_updated_dates_list_from_card_tags(self, card_tags):
         updated_dates = []
         for o in card_tags:
@@ -186,6 +188,7 @@ class BillsOverview():
             updated_dates.append(updated_date_datetime)
 
         return updated_dates
+
 
     def __get_bill_data_path_list_from_card_tags(self, card_tags):
         bill_details_paths = []
@@ -338,10 +341,6 @@ class BillsOverview():
                                                         bill_sessions, check_last_updated=False)
 
 
-    # method to update self.bills_overview_data dataframe with overview information about bills from given session, or
-    # all sessions
-    # currently gets titles, updated dates, further information paths
-    # fetch_delay is approx time in seconds of delay between fetching site pages
     def update_all_bills_in_session(
             self,
             session_name="2019-21",

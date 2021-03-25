@@ -159,8 +159,6 @@ def get_divisions_information(bill_title_stripped: str,
     for id in division_ids:
         division_information = get_division_values(id)
 
-        # only add if all words in bill_title_stripped appear in division name
-
         # only add if division is on a bill
         if check_division_is_on_bill(bill_title_stripped, division_information.division_name):
             division_information_list.append(division_information)
