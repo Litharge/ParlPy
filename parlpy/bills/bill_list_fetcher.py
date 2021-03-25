@@ -347,6 +347,12 @@ class BillsOverview():
             session_name="2019-21",
             fetch_delay=0,
     ):
+        """
+        Put all bills in session into self.bills_overview_data
+
+        :param session_name: str to determine session, eg "2004-05"... or "All"
+        :param fetch_delay: int how many miliseconds to delay between scrapes
+        """
         # reset df
         self.bills_overview_data = pd.DataFrame([], columns=["bill_title_stripped", "postfix", "last_updated", "bill_detail_path", "session"])
 
@@ -388,6 +394,15 @@ class BillsOverview():
     # puts into self.bills_overview_data, bills which have been updated since the method was last called
     # these can then be compared to values in a database for example
     def get_changed_bills_in_session(self, session_name="2019-21", fetch_delay=0):
+        """
+        Method to update self.bills_overview_data, but only those updated since the time in datetime_last_scraped.p
+
+        Method behaves like update_all_bills_in_session on its first run or after reset_datetime_last_scraped called,
+        after loading data into self.bills_overview_data it updates the pickle file so that the next time it runs it
+        only gets new bills
+        :param session_name:
+        :param fetch_delay:
+        """
         # reset df ready for new data
         self.bills_overview_data = pd.DataFrame([], columns=["bill_title_stripped", "postfix", "last_updated", "bill_detail_path", "session"])
 
@@ -399,6 +414,9 @@ class BillsOverview():
 
 
     def reset_datetime_last_scraped(self):
+        """
+        Delete datetime_last_scraped.p if it exists
+        """
         if self.run_on_app_engine:
             fs = gcsfs.GCSFileSystem(project=self.project_name)
             if fs.exists(f"{self.project_name}.appspot.com" + "/" + "datetime_last_scraped.p"):
@@ -411,6 +429,11 @@ class BillsOverview():
 
 
     def mock_datetime_last_scraped(self, mock_datetime: datetime.datetime):
+        """
+        Save a given datetime as last scraped
+
+        :param mock_datetime: datetime to save
+        """
         if self.run_on_app_engine:
             fs = gcsfs.GCSFileSystem(project=self.project_name)
             with fs.open(f"{self.project_name}.appspot.com" + "/" + "datetime_last_scraped.p", "wb") as handle:
