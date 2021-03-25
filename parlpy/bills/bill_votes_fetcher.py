@@ -33,6 +33,7 @@ def fetch_votes(
 
     return r
 
+
 # get a list of divisionIDs
 # note that the earliest *bill* division provided by the system is 2016-03-09
 # the earliest session with bill divisions recorded by the system is 2015-16
@@ -53,6 +54,7 @@ def get_division_ids(bill_title_stripped: str,
 
     return division_ids
 
+
 # return response for specific division by ID
 def fetch_division_values(division_id):
     specific_division_endpoint = f"https://commonsvotes-api.parliament.uk/data/division/{division_id}.json"
@@ -60,6 +62,7 @@ def fetch_division_values(division_id):
     response = requests.get(specific_division_endpoint)
 
     return response
+
 
 # second/third reading /: indicates the division is not the second or third reading, but is on amendments relating
 # todo: better checking of title to determine what stage the division is for
@@ -82,6 +85,7 @@ def determine_division_stage(division_title):
 
     return division_stage
 
+
 # build and return a DivisionInformation object with title, stage, ayes list and noes list
 def get_division_values(division_id):
     response = fetch_division_values(division_id)
@@ -101,6 +105,7 @@ def get_division_values(division_id):
 
     return division_values
 
+
 class DivisionInformation():
     """
     Class representing a division
@@ -113,6 +118,7 @@ class DivisionInformation():
         self.ayes = ayes
         # list of MP ids for the noes
         self.noes = noes
+
 
 # checks that a division is on a bill and not some other matter
 # results for eg "finance" also returns results for divisions with "finances"
@@ -129,6 +135,7 @@ def check_division_is_on_bill(bill_title_stripped, division_name):
             return False
 
     return True
+
 
 # return a list of DivisionInformation objects
 def get_divisions_information(bill_title_stripped: str,
