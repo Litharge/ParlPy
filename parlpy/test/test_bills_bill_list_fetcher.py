@@ -79,7 +79,7 @@ class TestOverview(unittest.TestCase):
     def test_mock_datetime_last_scraped_prevents_some(self):
         self.test_fetcher.reset_datetime_last_scraped()
 
-        mock_datetime_year_ago = datetime.datetime.now() - datetime.timedelta(365)
+        mock_datetime_year_ago = datetime.datetime.now() - datetime.timedelta(30)
         self.test_fetcher.mock_datetime_last_scraped(mock_datetime_year_ago)
 
         self.test_fetcher.get_changed_bills_in_session(session_name="All")
