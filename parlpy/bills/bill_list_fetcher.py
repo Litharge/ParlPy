@@ -1,3 +1,10 @@
+"""
+Contains class that specifies how basic data on bills is collected and represented
+
+Classes:
+
+    BillsOverview
+"""
 from urllib.request import urlopen
 import urllib.parse
 from collections import OrderedDict
@@ -21,6 +28,29 @@ import gcsfs
 # and will update the list by fetching each https://bills.parliament.uk page in series until the oldest updated date
 # is older than the bills_df_last_updated, amending the bills_df as it does so (planned)
 class BillsOverview():
+    """Class representing basic bill data, mainly to do with the existence of bills so we know what API calls to make
+
+    Attributes (public)
+    ----------
+    bills_overview_data : dataframe
+        data on bills when one of the public methods has run
+    run_on_app_engine : bool
+        determines what type of pickle to use, if true the gcsfs
+    project_name : str
+        what google cloud project name to use
+    debug : whether to print debug info
+
+    Methods (public)
+    ----------
+    update_all_bills_in_session(session_name="2019-21", fetch_delay=0,)
+        insert into bills_overview_data all bills with their basic info for a given session
+    get_changed_bills_in_session(session_name="2019-21", fetch_delay=0)
+        insert into bills_overview_data only bills updated since datetime_last_scraped.p, then updates/creates pickle
+    reset_datetime_last_scraped()
+        reset datetime_last_scraped.p pickle
+    mock_datetime_last_scraped(mock_datetime: datetime.datetime)
+        set datetime_last_scraped.p pickle
+    """
     def __init__(self, run_on_app_engine=False, project_name=None, debug=False):
         # whether to use gcsfs
         self.run_on_app_engine = run_on_app_engine
@@ -33,10 +63,9 @@ class BillsOverview():
 
         self.bills_overview_data = pd.DataFrame([], columns=["bill_title_stripped", "postfix", "last_updated", "bill_detail_path", "session"])
 
-        # record number of pages
+        # debugging vars
         self.pages_updated_this_update = 0
-
-        self.listed_bills_counter = 0 # debugging var
+        self.listed_bills_counter = 0
 
         self.__bills_overview_scheme = "https"
         self.__bills_overview_netloc = "bills.parliament.uk"
