@@ -22,13 +22,12 @@ from bs4 import BeautifulSoup
 import gcsfs
 
 
-# class that will have a method to fetch all bill titles, with its associated data:
-# * associated link to further details
-# * last updated date
-# and will update the list by fetching each https://bills.parliament.uk page in series until the oldest updated date
-# is older than the bills_df_last_updated, amending the bills_df as it does so (planned)
 class BillsOverview():
     """Class representing basic bill data, mainly to do with the existence of bills so we know what API calls to make
+
+    This class is used to find the existence of bills, it is not data that is intended to be used standalone, an object
+    of this type can then be passed to parlpy.bills.bill_details_iterator_get_bill_details to get the details on a
+    bill
 
     Attributes (public)
     ----------
