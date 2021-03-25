@@ -141,7 +141,6 @@ def get_divisions_information(
         end_datetime: datetime.date=None,
         skip_old_bills=True):
     """
-
     :param bill_title_stripped: str of bill title minus the "Bill" or "Act 20ab" used to get division info from API
     :param start_datetime: datetime used to narrow results of division search
     :param end_datetime: datetime used to narrow results of division search
