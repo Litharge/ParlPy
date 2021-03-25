@@ -1,10 +1,17 @@
 """
-Robert Chambers 2021
+Contains a function to return a list of DivisionInformation objects with information on divisions for a bill
+
+Classes (public):
+    DivisionInformation
+
+Functions (public):
+    get_divisions_information
 """
 
 import requests
 import datetime
 import json
+
 
 # get Response object from API, queried about divisions on a stripped title (title without the act/bill postfix)
 def fetch_votes(
@@ -95,6 +102,9 @@ def get_division_values(division_id):
     return division_values
 
 class DivisionInformation():
+    """
+    Class representing a division
+    """
     def __init__(self, division_name="", division_stage="", ayes=[], noes=[]):
         self.division_name = division_name
         # may be "Second Reading", "Third Reading", "Amendments"
@@ -125,6 +135,14 @@ def get_divisions_information(bill_title_stripped: str,
         start_datetime: datetime.date,
         end_datetime: datetime.date = None,
         skip_old_bills = True):
+    """
+
+    :param bill_title_stripped: str of bill title minus the "Bill" or "Act 20ab" used to get division info from API
+    :param start_datetime: datetime used to narrow results of division search
+    :param end_datetime: datetime used to narrow results of division search
+    :param skip_old_bills: whether to skip calling api on old bills that we know dont have division data
+    :return: list of DivisionInformation objects
+    """
     # we know that the earliest division is 2016-3-9
     delta = None
     if end_datetime is not None:
