@@ -135,10 +135,11 @@ def check_division_is_on_bill(bill_title_stripped, division_name):
 
 
 # return a list of DivisionInformation objects
-def get_divisions_information(bill_title_stripped: str,
+def get_divisions_information(
+        bill_title_stripped: str,
         start_datetime: datetime.date,
-        end_datetime: datetime.date = None,
-        skip_old_bills = True):
+        end_datetime: datetime.date=None,
+        skip_old_bills=True):
     """
 
     :param bill_title_stripped: str of bill title minus the "Bill" or "Act 20ab" used to get division info from API
