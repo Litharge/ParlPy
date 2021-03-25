@@ -14,8 +14,7 @@ import parlpy.utils.dates as session_dates
 import parlpy.bills.bill_votes_fetcher as bvf
 
 import datetime
-import json
-from typing import List, Iterable, NamedTuple
+from typing import List, Iterable
 
 import pandas as pd
 
