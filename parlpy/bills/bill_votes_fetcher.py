@@ -37,13 +37,10 @@ def fetch_votes(
 # get a list of divisionIDs
 # note that the earliest *bill* division provided by the system is 2016-03-09
 # the earliest session with bill divisions recorded by the system is 2015-16
-def get_division_ids(bill_title_stripped: str,
+def get_division_ids(
+        bill_title_stripped: str,
         start_datetime: datetime.date,
-        end_datetime: datetime.date = None
-                     ) -> list:
-
-
-
+        end_datetime: datetime.date = None) -> list:
     division_response = fetch_votes(bill_title_stripped, start_datetime, end_datetime)
     division_obj = json.loads(division_response.text)
 
