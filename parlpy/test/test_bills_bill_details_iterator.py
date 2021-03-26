@@ -1,15 +1,17 @@
 import unittest
+import datetime
 
 import parlpy.bills.bill_list_fetcher as blf
 import parlpy.bills.bill_details_iterator as bdi
 
 def print_all_info_using_iterator(fetcher):
-    for s in bdi.get_bill_details(fetcher, debug=True):
+    for s in bdi.get_bill_details(fetcher, verbose=True):
         for d in s.divisions_list:
             print(f"division name: {d.division_name}")
             print(f"division stage: {d.division_stage}")
             print(f"ayes: {d.ayes}")
             print(f"noes: {d.noes}")
+
 
 class TestDetails(unittest.TestCase):
     # a much shorter test, but does not test divisions capabilities
@@ -20,8 +22,12 @@ class TestDetails(unittest.TestCase):
         print_all_info_using_iterator(fetcher_2004_05)
 
     # longer test - may want to run specific tests
+    # todo: this will need updating when the 2019- session comes to an end
     def test_iterator_on_2019_21(self):
         fetcher_2019_21 = blf.BillsOverview()
-        fetcher_2019_21.update_all_bills_in_session(session_name="2019-21")
+
+        mock_7_days_ago = datetime.datetime.now() - datetime.timedelta(days=7)
+        fetcher_2019_21.mock_datetime_last_scraped(mock_7_days_ago)
+        fetcher_2019_21.get_changed_bills_in_session(session_name="2019-21")
 
         print_all_info_using_iterator(fetcher_2019_21)
