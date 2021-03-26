@@ -4,14 +4,7 @@ import parlpy.bills.bill_list_fetcher as blf
 import parlpy.bills.bill_details_iterator as bdi
 
 def print_all_info_using_iterator(fetcher):
-    for s in bdi.get_bill_details(fetcher):
-        print(f"title stripped: {s.title_stripped}")
-        print(f"title postfix: {s.title_postfix}")
-        print(f"sessions: {s.sessions}")
-        print(f"url: {s.url}")
-        print(f"last updated: {s.last_updated}")
-        print(f"summary {s.summary}")
-
+    for s in bdi.get_bill_details(fetcher, debug=True):
         for d in s.divisions_list:
             print(f"division name: {d.division_name}")
             print(f"division stage: {d.division_stage}")
@@ -25,7 +18,6 @@ class TestDetails(unittest.TestCase):
         fetcher_2004_05.update_all_bills_in_session(session_name="2004-05")
 
         print_all_info_using_iterator(fetcher_2004_05)
-
 
     # longer test - may want to run specific tests
     def test_iterator_on_2015_16(self):
