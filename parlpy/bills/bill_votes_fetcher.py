@@ -25,7 +25,6 @@ def fetch_votes(
                         }
 
     # add end time in order to narrow results, unless end_datetime None, which is the case for the current session only
-    print(f"end_datetime {end_datetime}")
     if end_datetime is not None:
         votes_parameters['queryParameters.endDate'] = end_datetime.isoformat()
 
