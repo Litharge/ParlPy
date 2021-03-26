@@ -4,6 +4,7 @@ import datetime
 import parlpy.bills.bill_list_fetcher as blf
 import parlpy.bills.bill_details_iterator as bdi
 
+
 def print_all_info_using_iterator(fetcher):
     for s in bdi.get_bill_details(fetcher, verbose=True):
         for d in s.divisions_list:
@@ -31,3 +32,5 @@ class TestDetails(unittest.TestCase):
         fetcher_2019_21.get_changed_bills_in_session(session_name="2019-21")
 
         print_all_info_using_iterator(fetcher_2019_21)
+
+
