@@ -281,7 +281,8 @@ class BillsOverview():
                     return got_all_updated_bills
 
                 else:
-                    print("found bill updated recently {}".format(titles_stripped[i]))
+                    if self.debug:
+                        print("found bill updated recently {}".format(titles_stripped[i]))
 
             bill_tuple_list.append(
                 (titles_stripped[i],
