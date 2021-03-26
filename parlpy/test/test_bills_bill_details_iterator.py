@@ -16,7 +16,7 @@ def print_all_info_using_iterator(fetcher):
 
 class TestDetails(unittest.TestCase):
     # a much shorter test, but does not test divisions capabilities
-    def test_iterator_on_2004_05_session(self):
+    def test_print_iterator_on_2004_05_session(self):
         fetcher_2004_05 = blf.BillsOverview()
         fetcher_2004_05.update_all_bills_in_session(session_name="2004-05")
 
@@ -24,7 +24,7 @@ class TestDetails(unittest.TestCase):
 
     # longer test - may want to run specific tests
     # todo: this will need updating when the 2019- session comes to an end
-    def test_iterator_on_2019_21(self):
+    def test_print_iterator_on_2019_21(self):
         fetcher_2019_21 = blf.BillsOverview()
 
         mock_7_days_ago = datetime.datetime.now() - datetime.timedelta(days=7)
