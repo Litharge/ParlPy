@@ -10,7 +10,7 @@ Written as part of University of Bath Integrated Project module.
 
 ## Install
 
-    pipenv install ParlPy===2.4.0
+    pipenv install ParlPy===2.5.0
 
 ## Intended Usage
 
@@ -126,6 +126,9 @@ Scrapes data from https://bills.parliament.uk
 ---
 
 # Versions
+
+## 2.5.0
+* include optional app engine pickling code
 
 ## 2.4.0
 * include method in BillsOverview to mock a datetime last scraped pickle
