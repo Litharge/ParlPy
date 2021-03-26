@@ -58,18 +58,15 @@ def get_start_and_end_dates(b):
 
 
 # yield a BillDetails object
-def get_bill_details(overview: blf.BillsOverview, debug=False) -> Iterable[BillDetails]:
+def get_bill_details(overview: blf.BillsOverview, verbose=False) -> Iterable[BillDetails]:
     """
     Function to yield details on a list of bills
 
     :param overview: BillsOverview object containing bills to get details on
-    :param debug: whether to print debug info
+    :param debug: whether to print debug info (verbose)
     :return: yield a BillDetails object containing details on the bill
     """
     for b in overview.bills_overview_data.itertuples():
-        if debug:
-            print(b)
-
         # use the bill name and narrow results using the start and end dates to get a list of divisions results object
         title_stripped = b.bill_title_stripped
         earliest_start_date, latest_end_date = get_start_and_end_dates(b)
@@ -80,5 +77,17 @@ def get_bill_details(overview: blf.BillsOverview, debug=False) -> Iterable[BillD
         summary = sf.get_summary(detail_path)
 
         bill_details = BillDetails(b, summary, divisions_data_list)
+
+        if verbose:
+            print(f"{'=' * 10}")
+            print("bill overview tuple")
+            print(b)
+            print(f"Title stripped: {bill_details.title_stripped}")
+            print(f"Title postfix: {bill_details.title_postfix}")
+            print(f"Last updated: {bill_details.last_updated}")
+            print(f"Bill summary: {bill_details.summary}")
+            print(f"Sessions: {bill_details.sessions}")
+            print(f"Number of divisions: {len(bill_details.divisions_list)}")
+            print(f"{'=' * 10}")
 
         yield bill_details
