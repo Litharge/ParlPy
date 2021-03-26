@@ -20,13 +20,6 @@ class TestDetails(unittest.TestCase):
         print_all_info_using_iterator(fetcher_2004_05)
 
     # longer test - may want to run specific tests
-    def test_iterator_on_2015_16(self):
-        fetcher_2015_16 = blf.BillsOverview()
-        fetcher_2015_16.update_all_bills_in_session(session_name="2015-16")
-
-        print_all_info_using_iterator(fetcher_2015_16)
-
-    # longer test - may want to run specific tests
     def test_iterator_on_2019_21(self):
         fetcher_2019_21 = blf.BillsOverview()
         fetcher_2019_21.update_all_bills_in_session(session_name="2019-21")
