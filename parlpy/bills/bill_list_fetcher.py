@@ -207,7 +207,7 @@ class BillsOverview():
             sessions = o.find(class_="secondary-info")
             sessions_text = sessions.text
             # put into list with members of form 20aa-bb
-            sessions_text = sessions_text.split("Session ")[1]
+            sessions_text = sessions_text.split(" ", maxsplit=1)[1]
             sessions_list = sessions_text.split(", ")
             bill_sessions.append(sessions_list)
 
