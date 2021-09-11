@@ -71,7 +71,7 @@ class TestOverview(unittest.TestCase):
         mock_datetime_now = datetime.datetime.now()
         self.test_fetcher.mock_datetime_last_scraped(mock_datetime_now)
 
-        self.test_fetcher.get_changed_bills_in_session(session_name="All")
+        self.test_fetcher.get_changed_bills_in_session(session_name="All", debug=True)
 
         df_row_count = len(self.test_fetcher.bills_overview_data.index)
         self.assertTrue(df_row_count == 0)
@@ -82,7 +82,7 @@ class TestOverview(unittest.TestCase):
         mock_datetime_year_ago = datetime.datetime.now() - datetime.timedelta(30)
         self.test_fetcher.mock_datetime_last_scraped(mock_datetime_year_ago)
 
-        self.test_fetcher.get_changed_bills_in_session(session_name="All")
+        self.test_fetcher.get_changed_bills_in_session(session_name="All", debug=True)
 
         df_row_count = len(self.test_fetcher.bills_overview_data.index)
         self.assertTrue(df_row_count != 0)
