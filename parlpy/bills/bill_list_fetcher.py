@@ -393,7 +393,7 @@ class BillsOverview():
     # this method uses a pickled variable (so that ths package can be run periodically)
     # puts into self.bills_overview_data, bills which have been updated since the method was last called
     # these can then be compared to values in a database for example
-    def get_changed_bills_in_session(self, session_name="2019-21", fetch_delay=0):
+    def get_changed_bills_in_session(self, session_name="2019-21", fetch_delay=0, debug=False):
         """
         Method to update self.bills_overview_data, but only those updated since the time in datetime_last_scraped.p
 
@@ -409,6 +409,10 @@ class BillsOverview():
         session_code = self.__bills_overview_session[session_name]
 
         max_page = self.__determine_number_pages_for_session(session_code)
+
+        if debug:
+            print("session code ", session_code)
+            print("max page ", max_page)
 
         self.__update_bills_overview_with_updated_bills_only_up_to_page(session_code, max_page, fetch_delay)
 
