@@ -87,11 +87,13 @@ class BillsOverview():
             "2005-06": "19",
             "2004-05": "18"
         }
+
+        # todo: determine these codes automatically
         self.__bills_overview_sort_order = {
             "Title (A-Z)": "0",
-            "Updated (newest first)": "1",
+            "Title (Z-A)": "1",
             "Updated (oldest first)": "2",
-            "Title (Z-A)": "3"
+            "Updated (newest first)": "3"
         }
 
     # get the total number of pages of bills for the selected session
@@ -363,13 +365,16 @@ class BillsOverview():
 
         self.__update_bills_overview_up_to_page(session_code, max_page, fetch_delay)
 
-    def __update_bills_overview_with_updated_bills_only_up_to_page(self, session_code, max_page, fetch_delay):
+    def __update_bills_overview_with_updated_bills_only_up_to_page(self, session_code, max_page, fetch_delay, debug=False):
         sort_order_code = self.__bills_overview_sort_order["Updated (newest first)"]
 
         for i in range(1, max_page + 1):
             time.sleep(fetch_delay)
             (titles_stripped, postfixes, updated_dates, bill_data_paths, bill_sessions) \
                 = self.__fetch_all_overview_info_on_page(session_code, sort_order_code, i)
+
+            if debug:
+                print(f"(titles_stripped, postfixes, updated_dates, bill_data_paths, bill_sessions) for page {i}: {(titles_stripped, postfixes, updated_dates, bill_data_paths, bill_sessions)}")
 
             got_all_updated_bills = self.__add_page_data_to_bills_overview_data(titles_stripped, postfixes,
                                                                                 updated_dates, bill_data_paths,
@@ -414,7 +419,7 @@ class BillsOverview():
             print("session code ", session_code)
             print("max page ", max_page)
 
-        self.__update_bills_overview_with_updated_bills_only_up_to_page(session_code, max_page, fetch_delay)
+        self.__update_bills_overview_with_updated_bills_only_up_to_page(session_code, max_page, fetch_delay, debug=debug)
 
 
     def reset_datetime_last_scraped(self):
