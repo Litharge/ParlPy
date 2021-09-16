@@ -10,7 +10,7 @@ Written as part of University of Bath Integrated Project module.
 
 ## Install
 
-    pipenv install ParlPy===2.5.0
+    pipenv install ParlPy~=2.5.0
 
 ## Intended Usage
 
@@ -127,6 +127,9 @@ Scrapes data from https://bills.parliament.uk
 
 # Versions
 
+## 2.5.2
+* updates to account for recent changes to parliamentary website
+
 ## 2.5.0
 * include optional app engine pickling code
 
@@ -179,3 +182,4 @@ Scrapes data from https://bills.parliament.uk
   only gets emails for current MPs.
     * 33 seconds to run `test_get_active_mps` without email data
     * 272 seconds to run `test_get_active_mps` with email data
+    
