@@ -16,3 +16,6 @@ dist/
 
 # ignore virtual env settings
 venv/*
+
+# ignore demo directory
+demo/*
