@@ -27,14 +27,13 @@ an object containing information on the bill, including divisions data
     
     import parlpy.bills.bill_list_fetcher as blf
     import parlpy.bills.bill_details_iterator as bdi
-
+    
     test_fetcher = blf.BillsOverview()
     test_fetcher.get_changed_bills_in_session()
-
+    
     for s in bdi.get_bill_details(test_fetcher):
-        summary, bill_divisions_list = s[0], s[1]
-        print(f"summary {summary}")
-        for d in bill_divisions_list:
+        print(f"summary {s.summary}")
+        for d in s.divisions_list:
             print(f"division name {d.division_name}")
             print(f"division stage {d.division_stage}")
             print(f"ayes {d.ayes}")
