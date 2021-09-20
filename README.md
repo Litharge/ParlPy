@@ -126,7 +126,7 @@ Scrapes data from https://bills.parliament.uk
 
 # Versions
 
-## 2.5.2
+## 2.5.1
 * updates to account for recent changes to parliamentary website
 
 ## 2.5.0
