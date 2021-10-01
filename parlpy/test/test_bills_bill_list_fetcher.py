@@ -87,6 +87,18 @@ class TestOverview(unittest.TestCase):
         df_row_count = len(self.test_fetcher.bills_overview_data.index)
         self.assertTrue(df_row_count != 0)
 
+    # check that (using a mock datetime last scraped) that the oldest bill is correct (can not check newest - this is
+    # not fixed)
+    def test_correct_bills_scraped(self):
+        self.test_fetcher.reset_datetime_last_scraped()
+
+        mock_datetime = datetime.datetime(2021, 9, 16, 18)
+        self.test_fetcher.mock_datetime_last_scraped(mock_datetime)
+
+        self.test_fetcher.get_changed_bills_in_session(session_name="2019-21")
+
+        self.assertTrue(self.test_fetcher.bills_overview_data.iloc[-1]["bill_title_stripped"] == "Telecommunications (Security)")
+
 
 if __name__ == '__main__':
     unittest.main()
