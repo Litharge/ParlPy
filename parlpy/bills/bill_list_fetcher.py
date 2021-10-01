@@ -20,6 +20,8 @@ from bs4 import BeautifulSoup
 
 import gcsfs
 
+from parlpy.utils.dates import parliamentary_session_start_dates
+
 
 class BillsOverview():
     """Class representing basic bill data, mainly to do with the existence of bills so we know what API calls to make
@@ -400,7 +402,8 @@ class BillsOverview():
     # this method uses a pickled variable (so that ths package can be run periodically)
     # puts into self.bills_overview_data, bills which have been updated since the method was last called
     # these can then be compared to values in a database for example
-    def get_changed_bills_in_session(self, session_name="2019-21", fetch_delay=0, debug=False):
+    # by default use the latest session
+    def get_changed_bills_in_session(self, session_name=list(parliamentary_session_start_dates.keys())[0], fetch_delay=0, debug=False):
         """
         Method to update self.bills_overview_data, but only those updated since the time in datetime_last_scraped.p
 
