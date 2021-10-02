@@ -240,7 +240,7 @@ class BillsOverview():
         if len(bill_tuple_list) > 0:
             bill_tuple_arr = numpy.array(bill_tuple_list, dtype=object)
 
-            page_df = pd.DataFrame(bill_tuple_arr, columns=["bill_title_stripped", "postfix", "originating_houses", "last_updated", "bill_detail_path", "session"])
+            page_df = pd.DataFrame(bill_tuple_arr, columns=["bill_title_stripped", "postfix", "originating_house", "last_updated", "bill_detail_path", "session"])
 
             new_indices = [x for x in
                            range(len(self.bills_overview_data.index), len(self.bills_overview_data.index) + len(page_df))]
@@ -379,7 +379,7 @@ class BillsOverview():
         :param fetch_delay: int how many miliseconds to delay between scrapes
         """
         # reset df
-        self.bills_overview_data = pd.DataFrame([], columns=["bill_title_stripped", "postfix", "last_updated", "bill_detail_path", "session"])
+        self.bills_overview_data = pd.DataFrame([], columns=["bill_title_stripped", "postfix", "originating_house", "last_updated", "bill_detail_path", "session"])
 
         # get the integer string corresponding to session string
         session_code = self.__bills_overview_session[session_name]
@@ -433,7 +433,7 @@ class BillsOverview():
         :param fetch_delay:
         """
         # reset df ready for new data
-        self.bills_overview_data = pd.DataFrame([], columns=["bill_title_stripped", "postfix", "last_updated", "bill_detail_path", "session"])
+        self.bills_overview_data = pd.DataFrame([], columns=["bill_title_stripped", "postfix", "originating_house", "last_updated", "bill_detail_path", "session"])
 
         session_code = self.__bills_overview_session[session_name]
 
