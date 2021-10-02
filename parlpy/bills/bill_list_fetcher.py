@@ -25,10 +25,6 @@ from parlpy.utils.dates import parliamentary_session_start_dates
 
 
 class BillsOverview():
-    # enum representing the originating house
-    class OriginatingHouse(Enum):
-        HOUSE_OF_COMMONS = 0
-        HOUSE_OF_LORDS = 1
     """Class representing basic bill data, mainly to do with the existence of bills so we know what API calls to make
 
     This class is used to find the existence of bills, it is not data that is intended to be used standalone, an object
@@ -57,6 +53,12 @@ class BillsOverview():
     mock_datetime_last_scraped(mock_datetime: datetime.datetime)
         set datetime_last_scraped.p pickle
     """
+
+    # enum representing the originating house
+    class OriginatingHouse(Enum):
+        HOUSE_OF_COMMONS = 0
+        HOUSE_OF_LORDS = 1
+
     def __init__(self, run_on_app_engine=False, project_name=None, debug=False):
         # whether to use gcsfs
         self.run_on_app_engine = run_on_app_engine
