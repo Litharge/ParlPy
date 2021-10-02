@@ -87,6 +87,28 @@ class TestOverview(unittest.TestCase):
 
         self.assertTrue(self.test_fetcher.bills_overview_data.iloc[-1]["bill_title_stripped"] == "Telecommunications (Security)")
 
+    def test_correct_house_commons(self):
+        self.test_fetcher.reset_datetime_last_scraped()
+
+        mock_datetime = datetime.datetime(2021, 9, 16, 18)
+        self.test_fetcher.mock_datetime_last_scraped(mock_datetime)
+
+        self.test_fetcher.get_changed_bills_in_session(session_name="2021-22")
+
+        self.assertTrue(
+            self.test_fetcher.bills_overview_data.iloc[-1]["originating_house"] == BillsOverview.OriginatingHouse.HOUSE_OF_COMMONS)
+
+    def test_correct_house_lords(self):
+        self.test_fetcher.reset_datetime_last_scraped()
+
+        mock_datetime = datetime.datetime(2021, 9, 15, 13)
+        self.test_fetcher.mock_datetime_last_scraped(mock_datetime)
+
+        self.test_fetcher.get_changed_bills_in_session(session_name="2021-22")
+
+        self.assertTrue(
+            self.test_fetcher.bills_overview_data.iloc[-1]["originating_house"] == BillsOverview.OriginatingHouse.HOUSE_OF_LORDS)
+
 
 if __name__ == '__main__':
     unittest.main()
