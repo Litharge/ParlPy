@@ -33,6 +33,7 @@ class BillDetails():
 
         self.title_stripped = b.bill_title_stripped
         self.title_postfix = b.postfix
+        self.originating_house = b.originating_house
         self.sessions = b.session
         self.url = base_url + b.bill_detail_path
         self.last_updated = b.last_updated
