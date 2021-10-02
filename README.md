@@ -126,6 +126,10 @@ Scrapes data from https://bills.parliament.uk
 
 # Versions
 
+## 2.5.2
+* correct demo program in README
+* add 2021-22 parliamentary session codes to scraper
+
 ## 2.5.1
 * updates to account for recent changes to parliamentary website
 
