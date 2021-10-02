@@ -149,14 +149,11 @@ class BillsOverview():
         originating_houses = []
         for o in card_tags:
             title = o.find(class_="primary-info").text
-            print(title)
 
             if "[HL]" in title:
                 originating_houses.append(BillsOverview.OriginatingHouse.HOUSE_OF_LORDS)
-                print("lords\n")
             else:
                 originating_houses.append(BillsOverview.OriginatingHouse.HOUSE_OF_COMMONS)
-                print("commons\n")
 
             # remove trailing "[HL]" if present
             title_hl_removed = title.rsplit(" [HL]", 1)[0]
