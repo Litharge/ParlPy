@@ -17,21 +17,9 @@ class TestOverview(unittest.TestCase):
 
         pd.set_option("display.max_columns", len(self.test_fetcher.bills_overview_data.columns))
 
-        #print(self.test_fetcher.bills_overview_data)
-
-    def atest_print_short(self):
-        print(f"\n\nPrinting dataframe from bill_list_fetcher for 2004-2005 session {' ' * 5 + '=' * 200}")
-        self.test_fetcher.update_all_bills_in_session(session_name="2004-05")
-
-        print(self.test_fetcher.bills_overview_data)
-
-        print("first session of first bill")
-        print(self.test_fetcher.bills_overview_data["session"][0][0])
-
-    # check that the second call to get_changed_bills_in_session puts more or equal items into bill_overview_data
-    # than the first
-
-    def atest_update_only_needed(self):
+    # check that the first call to get_changed_bills_in_session puts more or equal items into bill_overview_data
+    # than the second
+    def test_update_only_needed(self):
         self.test_fetcher.reset_datetime_last_scraped()
 
         self.test_fetcher.get_changed_bills_in_session()
