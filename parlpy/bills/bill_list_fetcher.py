@@ -12,6 +12,7 @@ import time
 import datetime
 import pickle
 import os
+from enum import Enum
 
 import pandas as pd
 import numpy
@@ -21,6 +22,11 @@ from bs4 import BeautifulSoup
 import gcsfs
 
 from parlpy.utils.dates import parliamentary_session_start_dates
+
+
+class OriginatingHouse(Enum):
+    HOUSE_OF_COMMONS = 0
+    HOUSE_OF_LORDS = 1
 
 
 class BillsOverview():
@@ -62,7 +68,7 @@ class BillsOverview():
         # whether to print output as it is collected
         self.debug = debug
 
-        self.bills_overview_data = pd.DataFrame([], columns=["bill_title_stripped", "postfix", "last_updated", "bill_detail_path", "session"])
+        self.bills_overview_data = pd.DataFrame([], columns=["bill_title_stripped", "postfix", "originating_house", "last_updated", "bill_detail_path", "session"])
 
         # debugging vars
         self.pages_updated_this_update = 0
@@ -139,8 +145,18 @@ class BillsOverview():
         # * "abc act 19uw (def) act 20ab"
         titles_stripped = []
         postfixes = []
+        originating_houses = []
         for o in card_tags:
             title = o.find(class_="primary-info").text
+            print(title)
+
+            if "[HL]" in title:
+                originating_houses.append(OriginatingHouse.HOUSE_OF_LORDS)
+                print("lords\n")
+            else:
+                originating_houses.append(OriginatingHouse.HOUSE_OF_COMMONS)
+                print("commons\n")
+
             # remove trailing "[HL]" if present
             title_hl_removed = title.rsplit(" [HL]", 1)[0]
 
@@ -178,7 +194,7 @@ class BillsOverview():
                 titles_stripped.append(title_stripped)
                 postfixes.append(postfix)
 
-        return titles_stripped, postfixes
+        return titles_stripped, postfixes, originating_houses
 
 
     def __get_updated_dates_list_from_card_tags(self, card_tags):
@@ -223,7 +239,7 @@ class BillsOverview():
         if len(bill_tuple_list) > 0:
             bill_tuple_arr = numpy.array(bill_tuple_list, dtype=object)
 
-            page_df = pd.DataFrame(bill_tuple_arr, columns=["bill_title_stripped", "postfix", "last_updated", "bill_detail_path", "session"])
+            page_df = pd.DataFrame(bill_tuple_arr, columns=["bill_title_stripped", "postfix", "originating_houses", "last_updated", "bill_detail_path", "session"])
 
             new_indices = [x for x in
                            range(len(self.bills_overview_data.index), len(self.bills_overview_data.index) + len(page_df))]
@@ -242,6 +258,7 @@ class BillsOverview():
             self,
             titles_stripped,
             postfixes,
+            originating_houses,
             updated_dates,
             bill_details_paths,
             bill_sessions,
@@ -293,6 +310,7 @@ class BillsOverview():
             bill_tuple_list.append(
                 (titles_stripped[i],
                  postfixes[i],
+                 originating_houses[i],
                  updated_dates[i],
                  bill_details_paths[i],
                  bill_sessions[i])
@@ -324,13 +342,13 @@ class BillsOverview():
 
         card_tags = data_bs.find_all(class_="card-clickable")
 
-        (titles_stripped, postfixes) = self.__get_title_stripped_and_postfix_list_from_card_tags(card_tags)
+        (titles_stripped, postfixes, originating_houses) = self.__get_title_stripped_and_postfix_list_from_card_tags(card_tags)
         updated_dates = self.__get_updated_dates_list_from_card_tags(card_tags)
         bill_data_paths = self.__get_bill_data_path_list_from_card_tags(card_tags)
         sessions = self.__get_bill_sessions_list_from_card_tags(card_tags)
 
         # list of titles, list of updated_dates, list of bill_data_paths, list of list of sessions
-        return (titles_stripped, postfixes, updated_dates, bill_data_paths, sessions)
+        return (titles_stripped, postfixes, originating_houses, updated_dates, bill_data_paths, sessions)
 
 
     def __update_bills_overview_up_to_page(self, session_code, max_page, fetch_delay, smart_update=True):
@@ -341,10 +359,10 @@ class BillsOverview():
         for i in range(1, max_page+1):
             time.sleep(fetch_delay)
 
-            (titles_stripped, postfixes, updated_dates, bill_data_paths, bill_sessions) \
+            (titles_stripped, postfixes, originating_houses, updated_dates, bill_data_paths, bill_sessions) \
                 = self.__fetch_all_overview_info_on_page(session_code, sort_order_code, i)
 
-            self.__add_page_data_to_bills_overview_data(titles_stripped, postfixes, updated_dates, bill_data_paths,
+            self.__add_page_data_to_bills_overview_data(titles_stripped, postfixes, originating_houses, updated_dates, bill_data_paths,
                                                         bill_sessions, check_last_updated=False)
 
 
@@ -374,13 +392,13 @@ class BillsOverview():
 
         for i in range(1, max_page + 1):
             time.sleep(fetch_delay)
-            (titles_stripped, postfixes, updated_dates, bill_data_paths, bill_sessions) \
+            (titles_stripped, postfixes, originating_houses, updated_dates, bill_data_paths, bill_sessions) \
                 = self.__fetch_all_overview_info_on_page(session_code, sort_order_code, i)
 
             if debug:
                 print(f"(titles_stripped, postfixes, updated_dates, bill_data_paths, bill_sessions) for page {i}: {(titles_stripped, postfixes, updated_dates, bill_data_paths, bill_sessions)}")
 
-            got_all_updated_bills = self.__add_page_data_to_bills_overview_data(titles_stripped, postfixes,
+            got_all_updated_bills = self.__add_page_data_to_bills_overview_data(titles_stripped, postfixes, originating_houses,
                                                                                 updated_dates, bill_data_paths,
                                                                                 bill_sessions, check_last_updated=True)
             # if we have all the bills which were updated since we last checked, no need to check any more pages
