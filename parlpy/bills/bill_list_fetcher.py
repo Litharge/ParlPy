@@ -24,12 +24,11 @@ import gcsfs
 from parlpy.utils.dates import parliamentary_session_start_dates
 
 
-class OriginatingHouse(Enum):
-    HOUSE_OF_COMMONS = 0
-    HOUSE_OF_LORDS = 1
-
-
 class BillsOverview():
+    # enum representing the originating house
+    class OriginatingHouse(Enum):
+        HOUSE_OF_COMMONS = 0
+        HOUSE_OF_LORDS = 1
     """Class representing basic bill data, mainly to do with the existence of bills so we know what API calls to make
 
     This class is used to find the existence of bills, it is not data that is intended to be used standalone, an object
@@ -151,10 +150,10 @@ class BillsOverview():
             print(title)
 
             if "[HL]" in title:
-                originating_houses.append(OriginatingHouse.HOUSE_OF_LORDS)
+                originating_houses.append(BillsOverview.OriginatingHouse.HOUSE_OF_LORDS)
                 print("lords\n")
             else:
-                originating_houses.append(OriginatingHouse.HOUSE_OF_COMMONS)
+                originating_houses.append(BillsOverview.OriginatingHouse.HOUSE_OF_COMMONS)
                 print("commons\n")
 
             # remove trailing "[HL]" if present
