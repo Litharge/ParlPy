@@ -61,11 +61,14 @@ Iterator that yields BillDetails object
 ### BillDetails
 
 Instance variables
+
 * self.title_stripped: str
 * self.title_postfix: str 
 * self.sessions: List[str]
 * self.summary: str
 * self.divisions_list: List[parlpy.bills.bill_votes_fetcher.DivisionInformation]
+* self.url: str
+* self.last_updated: datetime.datetime
 
 ## parlpy.bills.bill_list_fetcher
 
