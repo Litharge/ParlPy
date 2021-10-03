@@ -10,7 +10,7 @@ Written as part of University of Bath Integrated Project module.
 
 ## Install
 
-    pipenv install ParlPy~=2.5.0
+    pipenv install ParlPy~=2.6.0
 
 ## Intended Usage
 
@@ -125,6 +125,9 @@ Scrapes data from https://bills.parliament.uk
 ---
 
 # Versions
+
+## 2.6.0
+* add originating house data to overview and details
 
 ## 2.5.2
 * correct demo program in README
