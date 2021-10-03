@@ -3,6 +3,7 @@ import datetime
 
 import parlpy.bills.bill_list_fetcher as blf
 import parlpy.bills.bill_details_iterator as bdi
+from parlpy.bills.bill_details_iterator import BillDetails
 
 
 def print_all_info_using_iterator(fetcher):
@@ -52,3 +53,13 @@ class TestDetails(unittest.TestCase):
 
         self.assertTrue(last_bill.title_stripped == "Telecommunications (Security)")
 
+    def test_correct_originating_house_obtained(self):
+        fetcher_2019_21 = blf.BillsOverview()
+
+        mock_datetime = datetime.datetime(2021, 9, 16, 18)
+        fetcher_2019_21.mock_datetime_last_scraped(mock_datetime)
+        fetcher_2019_21.get_changed_bills_in_session(session_name="2019-21")
+
+        last_bill = get_last_bill_details(fetcher_2019_21)
+
+        self.assertTrue(last_bill.originating_house == blf.BillsOverview.OriginatingHouse.HOUSE_OF_COMMONS)
