@@ -63,3 +63,17 @@ class TestDetails(unittest.TestCase):
         last_bill = get_last_bill_details(fetcher_2019_21)
 
         self.assertTrue(last_bill.originating_house == blf.BillsOverview.OriginatingHouse.HOUSE_OF_COMMONS)
+
+    def test_correct_bill_stripped_title_obtained_chronological(self):
+        fetcher_2019_21 = blf.BillsOverview()
+
+        mock_datetime = datetime.datetime(2021, 9, 16, 18)
+        fetcher_2019_21.mock_datetime_last_scraped(mock_datetime)
+        fetcher_2019_21.get_changed_bills_in_session(session_name="2019-21")
+
+        # run generator once as we want the first item
+        for l in bdi.get_bill_details(fetcher_2019_21, chronological=True):
+            first_bill = l
+            break
+
+        self.assertTrue(first_bill.title_stripped == "Telecommunications (Security)")
