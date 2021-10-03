@@ -59,7 +59,7 @@ def get_start_and_end_dates(b):
 
 
 # yield a BillDetails object
-def get_bill_details(overview: blf.BillsOverview, verbose=False) -> Iterable[BillDetails]:
+def get_bill_details(overview: blf.BillsOverview, verbose=False, chronological=False) -> Iterable[BillDetails]:
     """
     Function to yield details on a list of bills
 
@@ -67,6 +67,9 @@ def get_bill_details(overview: blf.BillsOverview, verbose=False) -> Iterable[Bil
     :param debug: whether to print debug info (verbose)
     :return: yield a BillDetails object containing details on the bill
     """
+    if chronological:
+        overview.bills_overview_data = overview.bills_overview_data[::-1]
+
     for b in overview.bills_overview_data.itertuples():
         # use the bill name and narrow results using the start and end dates to get a list of divisions results object
         title_stripped = b.bill_title_stripped
